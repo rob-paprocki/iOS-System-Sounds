@@ -126,12 +126,15 @@ Apple shipped.
 
 ## Licence
 
-The **audio files are Apple Inc.'s copyrighted work** and are not covered by any open
-licence. They are collected here for reference, preservation, and research. If you are
-Apple and would like this taken down, open an issue.
+Two kinds of material, two sets of terms — see [NOTICE.md](NOTICE.md) for the full
+statement.
 
-The **scripts, index, and documentation** in this repository are released under the MIT
-licence — see [LICENSE](LICENSE).
+- The **audio files** under `Source/` and in the WAV release are **Apple Inc.'s
+  copyrighted work**. No licence to them is granted or implied here. They are collected
+  for reference, preservation, and research. If you are Apple and would like this taken
+  down, open an issue.
+- The **scripts, index files, and documentation** are original work under the
+  [MIT licence](LICENSE).
 
 ## Prior art
 
