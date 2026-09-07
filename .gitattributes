@@ -1,0 +1,15 @@
+# Audio assets are binary -- never diff or line-ending-normalise them.
+*.caf  binary
+*.m4a  binary
+*.aiff binary
+*.aif  binary
+*.wav  binary
+*.mp3  binary
+*.flac binary
+
+# Keep the generated index out of diff noise and language stats.
+sounds.json   linguist-generated=true
+_manifest.csv linguist-generated=true
+
+# Don't let 1,613 audio files decide the repo's "language".
+Source/** linguist-vendored=true

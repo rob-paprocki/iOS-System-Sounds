@@ -1,0 +1,17 @@
+# The converted WAV mirror is 1.6 GB -- distributed via Releases, not git.
+# Rebuild it locally with: python3 tools/make-wav.py
+WAV/
+
+# Release archives built from it
+*.zip
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.pyc
+.venv/
