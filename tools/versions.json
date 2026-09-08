@@ -1,0 +1,22 @@
+{
+ "note": "One IPSW per annual iPhone generation: the earliest release of the iOS major that shipped on that device. iOS 26.6.1 is the extraction this repository started from and is kept alongside 26.0.",
+ "versions": [
+  {"os": "iOS 4.0",    "device": "iPhone3,1",  "build": "8A293",   "model": "iPhone 4"},
+  {"os": "iOS 5.0",    "device": "iPhone4,1",  "build": "9A334",   "model": "iPhone 4s"},
+  {"os": "iOS 6.0",    "device": "iPhone5,1",  "build": "10A405",  "model": "iPhone 5"},
+  {"os": "iOS 7.0.1",  "device": "iPhone6,1",  "build": "11A470a", "model": "iPhone 5s"},
+  {"os": "iOS 8.0",    "device": "iPhone7,2",  "build": "12A365",  "model": "iPhone 6"},
+  {"os": "iOS 9.0",    "device": "iPhone8,1",  "build": "13A342",  "model": "iPhone 6s"},
+  {"os": "iOS 10.0.1", "device": "iPhone9,3",  "build": "14A403",  "model": "iPhone 7"},
+  {"os": "iOS 11.0",   "device": "iPhone10,1", "build": "15A372",  "model": "iPhone 8"},
+  {"os": "iOS 12.0",   "device": "iPhone11,2", "build": "16A366",  "model": "iPhone XS"},
+  {"os": "iOS 13.0",   "device": "iPhone12,1", "build": "17A577",  "model": "iPhone 11"},
+  {"os": "iOS 14.1",   "device": "iPhone13,2", "build": "18A8395", "model": "iPhone 12"},
+  {"os": "iOS 15.0",   "device": "iPhone14,5", "build": "19A346",  "model": "iPhone 13"},
+  {"os": "iOS 16.0",   "device": "iPhone14,7", "build": "20A362",  "model": "iPhone 14"},
+  {"os": "iOS 17.0.2", "device": "iPhone15,4", "build": "21A350",  "model": "iPhone 15"},
+  {"os": "iOS 18.0",   "device": "iPhone17,3", "build": "22A3354", "model": "iPhone 16"},
+  {"os": "iOS 26.0",   "device": "iPhone18,2", "build": "23A345",  "model": "iPhone 17 Pro Max"},
+  {"os": "iOS 26.6.1", "device": "iPhone18,2", "build": "23G83",   "model": "iPhone 17 Pro Max"}
+ ]
+}

@@ -2,7 +2,15 @@
 # Rebuild it locally with: python3 tools/make-wav.py
 WAV/
 
-# Release archives built from it
+# Ingest scratch: downloaded IPSWs, mounted images, per-version extractions.
+# Everything here is reproducible from tools/fetch-version.py.
+_work/
+
+# Content-addressed store of every unique audio file across all versions.
+# Large, and the Current/ + Removed/ trees are built from it.
+_store/
+
+# Release archives
 *.zip
 
 # macOS
@@ -15,3 +23,6 @@ WAV/
 __pycache__/
 *.pyc
 .venv/
+
+# Ingest working state; the public index is sounds.json, rebuilt by tools/build-repo.py
+corpus.json
