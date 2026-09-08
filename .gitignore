@@ -26,3 +26,6 @@ __pycache__/
 
 # Ingest working state; the public index is sounds.json, rebuilt by tools/build-repo.py
 corpus.json
+
+# ipsw writes this next to downloads
+checksums.txt.sha1
