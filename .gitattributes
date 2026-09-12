@@ -4,12 +4,15 @@
 *.aiff binary
 *.aif  binary
 *.wav  binary
+*.voc  binary
 *.mp3  binary
 *.flac binary
 
 # Keep the generated index out of diff noise and language stats.
-sounds.json   linguist-generated=true
-_manifest.csv linguist-generated=true
+sounds.json linguist-generated=true
+sounds.csv  linguist-generated=true
 
-# Don't let 1,613 audio files decide the repo's "language".
-Source/** linguist-vendored=true
+# Don't let 5,425 audio files decide the repo's "language".
+Current/**          linguist-vendored=true
+Removed/**          linguist-vendored=true
+Spoken*Content/**    linguist-vendored=true

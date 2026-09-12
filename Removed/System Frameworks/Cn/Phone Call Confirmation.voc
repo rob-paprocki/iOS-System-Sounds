@@ -1,0 +1,18 @@
+#INCLUDE ../../../shared/zh/cn/confirmation.inc          [notExists;node=phoneCallVerb;constraint=before]
+#INCLUDE ../../../shared/zh/cn/contactConfirmation.inc   [notExists;node=phoneCallVerb;constraint=before]
+
+;<rdar://problem/9799051> "I can't find Nobody in your address book"
+no [notExists;node=phoneCallVerb;constraint=before]
+      都不(要|是|对) [exists;node=phoneCallContact;constraint=promptTarget]
+
+; <rdar://problem/17670552> [zh_CN] [Okemo LocTask][Phone] Final UI for cancelling imminent phone call from Siri
+yes
+      是要{打{电话}}给 [notExists;node="personFirstName,personLastName,personFullName"]
+      打电话 [notExists;node="personFirstName,personLastName,personFullName"]
+      打过去 [notExists;node="personFirstName,personLastName,personFullName"]
+      {我要|我想|帮我}打{电话}给(他|她)
+      呼叫 [notExists;node="personFirstName,personLastName,personFullName"]
+
+
+no
+      不是要{打{电话}}给

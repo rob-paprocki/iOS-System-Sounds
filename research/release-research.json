@@ -1,0 +1,558 @@
+{
+ "synth": {
+  "priority_builds": [
+   {
+    "version": "4.2.1",
+    "build": "8C148",
+    "priority": "must-have",
+    "reason": "This release added 17 new SMS/text alert tones, nearly tripling the original set of six, and introduced per-contact text tones. It also has a numbering trap: the iPad release of this line is plain '4.2', but the iPhone/iPod touch build carrying the new tone files is 4.2.1 (8C148), so a naive 'one IPSW per major.minor' fetch keyed on '4.2' can pull the wrong image. Sources: https://www.apple.com/newsroom/2010/11/22Apples-iOS-4-2-Available-Today-for-iPad-iPhone-iPod-touch/ , https://www.engadget.com/2010-11-22-iphone-4-2-how-to-setting-custom-sms-alert-tones.html , https://macenstein.com/2010/11/a-profanity-laden-tirade-against-the-new-ios-4-2-text-alert-sounds/"
+   },
+   {
+    "version": "16.0.1",
+    "build": "20A371",
+    "priority": "must-have",
+    "reason": "20A371 is the build iPhone 14 shipped with out of the box; other devices got 16.0 (20A362). Two new audio surfaces debut on iPhone 14: Crash Detection's multi-stage emergency audio (alarm, repeated loud 'whoops' during the countdown, then a looped spoken emergency message played over the speakers) and the optional Power On & Off Sounds accessibility chime, which was iPhone 14-only at introduction. Sources: https://support.apple.com/en-us/104959 , https://www.macrumors.com/2022/09/07/iphone-14-mac-like-startup-sound/"
+   },
+   {
+    "version": "13.4.1",
+    "build": "17E8258",
+    "priority": "nice-to-have",
+    "reason": "Confirmed device-exclusive build: only iPhone SE (2nd generation, iPhone12,8) received 17E8258; every other device got 17E262. No audio change is documented for it, but any SE-specific asset in that tree exists in no other image. Source: https://ipsw.me/download/iPhone4,1/9A405/ was used for a different build; the SE exclusivity was established from IPSW mirror listings by the device-exclusive researcher and should be re-confirmed against theapplewiki before spending the download."
+   },
+   {
+    "version": "18.3",
+    "build": "22D8063",
+    "priority": "nice-to-have",
+    "reason": "iPhone 16e-exclusive build (iPhone17,5); general devices got 22D63. No documented audio change, but it is a cheap way to capture any 16e-specific asset. Flagged as needing re-confirmation against a definitive build table."
+   },
+   {
+    "version": "18.3.1",
+    "build": "22D8075",
+    "priority": "nice-to-have",
+    "reason": "Second iPhone 16e-exclusive build (general devices got 22D72). This 22D8075-vs-22D72 pair is the single most information-dense confirmed exclusive/general build pair found, and is the best candidate for a like-for-like device asset diff. Flagged as needing re-confirmation against a definitive build table."
+   },
+   {
+    "version": "10.0.1",
+    "build": "14A403",
+    "priority": "nice-to-have",
+    "reason": "Reported as the out-of-box build for iPhone 7 / 7 Plus while other devices stayed on 10.0 (14A346) - the first iPhone with no headphone jack and a non-moving haptic home button. Exclusivity is well attested by IPSW mirrors but was not positively confirmed, so treat as medium confidence."
+   },
+   {
+    "version": "17.0",
+    "build": "21A327",
+    "priority": "nice-to-have",
+    "reason": "iPhone 15 / 15 Pro out-of-box build (21A326/21A327), distinct from 21A329 which shipped to existing devices on 2023-09-18. If you take only one 17.0 image, you will get one tree or the other, not both. Source for the 17.0 release itself: https://en.wikipedia.org/wiki/IOS_17"
+   },
+   {
+    "version": "26.0",
+    "build": "23A345",
+    "priority": "nice-to-have",
+    "reason": "iPhone 17 Pro / iPhone Air preinstall build (23A330 for other iPhone 17 models), distinct from the general 26.0 build 23A341. No audio difference is documented - explicitly, no new or changed camera shutter sound was found for the new Center Stage front camera - so this is coverage insurance only. Build table source: https://en.wikipedia.org/wiki/IOS_26 , cross-checked against https://support.apple.com/en-us/123075"
+   },
+   {
+    "version": "5.0.1",
+    "build": "9A405",
+    "priority": "nice-to-have",
+    "reason": "The 4S-era Siri build tree; Siri was iPhone 4S-exclusive for over a year and carries its own activation and response audio cues. ipsw.me lists 9A405 for iPhone4,1. Medium confidence on whether this build is genuinely device-exclusive versus shared. Source: https://ipsw.me/download/iPhone4,1/9A405/"
+   }
+  ],
+  "timeline": [
+   {
+    "version": "1.0",
+    "headline": "The original iPhone shipped with a self-composed set of 25 ringtones, with 'Marimba' as the default, plus the first UI sound set.",
+    "details": [
+     "Because the original iPhone was the only iPhone in existence in 2007, this whole set is the baseline every later diff is measured against."
+    ],
+    "sources": [
+     "https://en.wikipedia.org/wiki/IPhone_OS_1",
+     "https://electronics.howstuffworks.com/composer-origin-iphone-marimba-ringtone.htm",
+     "https://www.slashgear.com/1511674/historical-connection-behind-apple-iphone-famous-marimba-ringtone/"
+    ]
+   },
+   {
+    "version": "3.0",
+    "headline": "Voice Control, the Voice Memos app, and push notifications all arrived in the same release, each bringing its own audio surface.",
+    "details": [
+     "Voice Control (iPhone 3GS only) is a voice-command feature with its own cue tones; the exact filenames could not be confirmed from public sources and need direct IPSW inspection.",
+     "Voice Memos ships recording start/stop UI sounds.",
+     "Apple Push Notification Service is the first system-wide mechanism that lets any third-party app trigger a sound on an incoming push."
+    ],
+    "sources": [
+     "https://en.wikipedia.org/wiki/IOS_3",
+     "https://en.wikipedia.org/wiki/Apple_Push_Notification_service"
+    ]
+   },
+   {
+    "version": "4.2.1",
+    "headline": "Apple added 17 new SMS and text alert tones, nearly tripling the original set of six, and allowed a distinct text tone per contact.",
+    "details": [
+     "At launch this was iPhone 4 only; iPhone 3GS did not receive the new tones with this release.",
+     "The iPad release of this line is numbered 4.2; the iPhone build carrying the new tone files is 4.2.1, build 8C148."
+    ],
+    "sources": [
+     "https://www.apple.com/newsroom/2010/11/22Apples-iOS-4-2-Available-Today-for-iPad-iPhone-iPod-touch/",
+     "https://www.engadget.com/2010-11-22-iphone-4-2-how-to-setting-custom-sms-alert-tones.html",
+     "https://macenstein.com/2010/11/a-profanity-laden-tirade-against-the-new-ios-4-2-text-alert-sounds/",
+     "https://www.macrumors.com/2010/11/22/ios-4-2-to-be-released-today-find-my-iphone-now-free/"
+    ]
+   },
+   {
+    "version": "4.3",
+    "headline": "Most of the text alert tones introduced in 4.2.1 were re-edited and shortened to well under a second after user complaints.",
+    "details": [
+     "A few tones, reported to include Minuet, Update and Anticipate, were left unchanged.",
+     "This is an in-place edit of existing files: a 4.2.1-to-4.3 diff should show byte-different tones under the same filenames.",
+     "A 'repeat alert up to 10 times' setting and a two-pulse vibration pattern for texts were added alongside."
+    ],
+    "sources": [
+     "https://www.idownloadblog.com/2011/03/14/messages-app-updated-in-ios-4-3/",
+     "https://appleinsider.com/articles/11/06/08/inside_apples_ios_5_itunes_tone_store_will_offer_more_text_alert_options"
+    ]
+   },
+   {
+    "version": "5.0",
+    "headline": "Siri launched as an iPhone 4S exclusive, bringing the first on-device assistant activation and response audio cues.",
+    "details": [
+     "Siri was restricted to iPhone 4S at launch (9A334, 12 October 2011; 4S retail launch 14 October 2011) and refined for that device in 5.0.1 (9A405).",
+     "The other tone-related change in this line was infrastructural - the iTunes Tone Store and more customisable alert categories - not a refresh of Apple's own default tone files."
+    ],
+    "sources": [
+     "https://ipsw.me/download/iPhone4,1/9A405/",
+     "https://www.iphonefaq.org/archives/971716",
+     "https://www.slashgear.com/iphone-4-siri-port-made-legally-possible-by-apple-with-ios-5-0-1-update-today-16202798/",
+     "https://appleinsider.com/articles/11/06/08/inside_apples_ios_5_itunes_tone_store_will_offer_more_text_alert_options"
+    ]
+   },
+   {
+    "version": "6.0",
+    "headline": "Apple Maps replaced Google Maps and added spoken turn-by-turn driving directions, a navigation voice that did not exist in earlier releases.",
+    "details": [
+     "Spoken directions were limited to iPhone 4S and later and cellular iPad 2 and later at launch.",
+     "Do Not Disturb also arrived; it suppresses sounds rather than adding any asset."
+    ],
+    "sources": [
+     "https://www.apple.com/newsroom/2012/06/11Apple-Previews-iOS-6-With-All-New-Maps-Siri-Features-Facebook-Integration-Shared-Photo-Streams-New-Passbook-App/",
+     "https://en.wikipedia.org/wiki/IOS_6"
+    ]
+   },
+   {
+    "version": "7.0",
+    "headline": "The flat-design overhaul came with the largest sound change in the platform's history: 27 new ringtones, 12 new alert tones, the old set demoted to a 'Classic' menu, the unlock chime deleted, and a male Siri voice added.",
+    "details": [
+     "'Opening' replaced 'Marimba' as the default ringtone. New alert tones include Aurora, Bamboo, Chord, Hello, Note, Popcorn, Pulse and Synth.",
+     "Every pre-iOS 7 ringtone and alert tone was kept but moved into a 'Classic' sub-category of the tone picker, so those files should still be physically present.",
+     "The slide-to-unlock chime, present unchanged since the original iPhone, was removed; the separate lock (screen-off) sound was kept. Only jailbreak tweaks could restore it. This is sourced from blog coverage of those tweaks rather than an Apple statement.",
+     "Siri's US English voice was redesigned and a male voice option was offered for the first time, doubling the per-locale voice-preview assets in supported regions."
+    ],
+    "sources": [
+     "https://www.idownloadblog.com/2013/09/10/hands-on-with-ios-7-new-rigntones-and-alerts-sounds/",
+     "https://9to5mac.com/2013/09/10/listen-to-ios-7s-new-ringtones-and-text-tones-video/",
+     "https://www.idownloadblog.com/2014/01/18/unlocksound7/",
+     "https://www.redmondpie.com/how-to-get-classic-slide-to-unlock-sound-back-on-ios-7-lock-screen/",
+     "https://www.gottabemobile.com/how-to-get-old-iphone-ringtones-back/",
+     "https://www.ibtimes.com/apple-reveals-siri-will-now-have-male-voice-option-ios-7-release-1307167"
+    ]
+   },
+   {
+    "version": "7.1",
+    "headline": "New, more natural Siri voices shipped for UK English, Australian English and Japanese only, replacing the 7.0-era voices in those locales.",
+    "details": [
+     "This is direct evidence that a voice-asset overhaul can land on a minor release and cover only a subset of locales."
+    ],
+    "sources": [
+     "https://appleinsider.com/articles/14/02/04/first-listen-new-natural-sounding-siri-voices-for-the-uk-australia-and-japan",
+     "https://www.idownloadblog.com/2014/01/20/uk-siri-male-female-voices/"
+    ]
+   },
+   {
+    "version": "8.0",
+    "headline": "Siri's voices became selectable as the system speech voice for VoiceOver, Speak Screen and Speak Selection; the macOS 'Alex' voice came to iOS; and 'Hey Siri' hands-free activation launched.",
+    "details": [
+     "'Hey Siri' at this point required the device to be plugged in.",
+     "This is the point where VoiceOver's voice list starts overlapping with Siri's TTS assets, which matters for de-duplicating the corpus.",
+     "Siri also gained roughly 22 additional languages per WWDC 2014."
+    ],
+    "sources": [
+     "https://dyslexiahelp.umich.edu/latest/apples-new-ios-8-has-several-big-accessibility-improvements",
+     "https://www.idownloadblog.com/2016/02/17/how-to-select-siri-voices-for-voiceover/",
+     "https://www.macstories.net/stories/a-timeline-of-ios-accessibility-it-started-with-36-seconds/",
+     "https://en.wikipedia.org/wiki/Siri"
+    ]
+   },
+   {
+    "version": "9.0",
+    "headline": "The built-in Nike + iPod app was deleted, taking its spoken workout prompts with it, while 'Hey Siri' became always-on and the iPhone 6s added the Taptic Engine.",
+    "details": [
+     "Nike + iPod had been bundled since the iPhone 3G era with its own spoken workout-progress audio and selectable male/female voice packs. It was removed in iOS 9 with no user-facing deprecation notice. This is corroborated by Apple Support Community and forum threads rather than press or primary sources, so confidence is medium.",
+     "'Hey Siri' no longer required the device to be plugged in, and gained per-owner voice recognition.",
+     "iPhone 6s and 6s Plus introduced the Taptic Engine with 3D Touch, a linear actuator producing haptic pulses earlier hardware could not."
+    ],
+    "sources": [
+     "https://discussions.apple.com/thread/7230303",
+     "https://discussions.apple.com/thread/7220241",
+     "http://www.dslreports.com/forum/r30305275-Nike-iPod-Built-in-removed-in-iOS9",
+     "https://en.wikipedia.org/wiki/Siri",
+     "https://en.wikipedia.org/wiki/IPhone_6S"
+    ]
+   },
+   {
+    "version": "10.0",
+    "headline": "Apple redesigned the lock and keyboard-click sounds, and rebuilt Siri's speech synthesis on a deep-learning model for the first time.",
+    "details": [
+     "Apple's own description of the release calls out 'new sound effects for locking the device and for keyboard clicks'.",
+     "Apple's machine learning research writeup A/B-compares iOS 9, iOS 10 and iOS 11 Siri voices and places the move from concatenative unit selection to a deep mixture density network at iOS 10, not iOS 11."
+    ],
+    "sources": [
+     "https://en.wikipedia.org/wiki/IOS_10",
+     "https://machinelearning.apple.com/research/siri-voices"
+    ]
+   },
+   {
+    "version": "10.3",
+    "headline": "Find My AirPods added a 'Play Sound' action that makes a lost AirPod chirp.",
+    "details": [
+     "The chirp is most likely stored in the AirPods' own firmware rather than in the iOS filesystem; this needs confirmation at extraction time rather than assumption."
+    ],
+    "sources": [
+     "https://www.macworld.com/article/229840/how-to-use-find-my-airpods-in-ios-10-3.html",
+     "https://time.com/4646024/ios-10-3-beta-airpods/"
+    ]
+   },
+   {
+    "version": "11.0",
+    "headline": "Siri was re-recorded with new male and female US English voice talent, retiring the 2011-era voice database, and Emergency SOS added a loud siren-style countdown sound.",
+    "details": [
+     "Apple recorded roughly 20 hours of speech from new voice talent, generating one to two million audio segments, at a higher sample rate than the earlier system.",
+     "The Emergency SOS Countdown Sound plays during the auto-call countdown, for example after pressing the side button five times, and is toggleable in Settings.",
+     "Community reports claim the pre-2017 Siri voices survive inside VoiceOver's voice picker under different names (US Aaron/Nicky, UK Arthur/Martha, Australian Catherine/Gordon). This is forum-sourced only and unverified."
+    ],
+    "sources": [
+     "https://machinelearning.apple.com/research/siri-voices",
+     "https://www.apple.com/newsroom/2017/06/ios-11-brings-new-features-to-iphone-and-ipad-this-fall/",
+     "https://www.romper.com/p/how-to-turn-on-the-emergency-sos-countdown-sound-in-ios-11-because-mistakes-happen-2912206",
+     "https://applevis.com/forum/ios-ipados/why-dont-we-have-all-old-siri-voices-after-release-ios-11"
+    ]
+   },
+   {
+    "version": "11.1",
+    "headline": "'Reflection' shipped as a new default ringtone, playable only on iPhone X even though the file sits in the shared 11.1 image (build 15B93).",
+    "details": [
+     "'Opening' remained the default on all other models.",
+     "AppleVis reports also describe an audible Face ID unlock chime on the earliest Face ID devices that 'disappeared rather quickly' from later builds. This is forum-sourced and low confidence."
+    ],
+    "sources": [
+     "https://9to5mac.com/2017/11/01/iphone-x-exclusive-default-ringtone-reflection/",
+     "https://www.macrumors.com/2017/11/01/iphone-x-reflection-ringtone/",
+     "https://www.applevis.com/bugs/ios/missing-audible-tone-after-your-device-has-been-successfully-unlocked-face-id"
+    ]
+   },
+   {
+    "version": "12.0",
+    "headline": "Live Listen, which streams the device microphone to Made-for-iPhone hearing aids, was extended to work with AirPods.",
+    "details": [
+     "This is a routing change to an existing hearing-accessibility feature, not a new bundled asset."
+    ],
+    "sources": [
+     "https://www.macstories.net/stories/a-timeline-of-ios-accessibility-it-started-with-36-seconds/"
+    ]
+   },
+   {
+    "version": "13.0",
+    "headline": "Siri's US English voice moved to fully generated Neural TTS, new Indian English voices shipped, and the Voice Control accessibility feature added command-confirmation sounds.",
+    "details": [
+     "Neural TTS generates speech from a learned model at runtime instead of splicing recorded clips, so the on-disk asset type itself changes versus iOS 12.",
+     "New male and female Indian English Siri voices shipped along with a matching Indian English Maps navigation voice.",
+     "Voice Control includes a setting to play a sound when a command is recognised."
+    ],
+    "sources": [
+     "https://www.engadget.com/2019-06-03-siri-now-sounds-more-like-a-human.html",
+     "https://www.shacknews.com/article/112048/apple-announces-neural-tts-support-for-siri-at-wwdc-2019",
+     "https://www.thequint.com/tech-and-auto/tech-news/soon-siri-will-be-speaking-to-you-in-desi-english-accent",
+     "https://www.macrumors.com/guide/voice-control/"
+    ]
+   },
+   {
+    "version": "13.6",
+    "headline": "Apple News added Apple News Today and narrated Apple News+ audio, which Apple stated required iOS 13.6.",
+    "details": [
+     "These are streamed or cached from Apple's servers on demand and are very unlikely to be present as files in the IPSW; only a player chime, if one exists, would be."
+    ],
+    "sources": [
+     "https://www.apple.com/newsroom/2020/07/apple-news-launches-new-audio-features-expands-local-news-offerings-for-readers/",
+     "https://www.macstories.net/news/apple-releases-ios-136-with-apple-news-audio-features-and-expanded-local-news-coverage-plus-digital-car-key-support/"
+    ]
+   },
+   {
+    "version": "14.0",
+    "headline": "Sound Recognition shipped, listening on-device for alarms, sirens, doorbells, knocking, running water, animals, appliance beeps, car horns and crying, and Spatial Audio arrived for AirPods Pro.",
+    "details": [
+     "Sound Recognition is a classifier rather than an obvious sample library, but the filesystem is worth checking for exemplar audio shipped alongside the model.",
+     "Spatial Audio is a rendering-pipeline change, not a discrete sound file, and required a companion AirPods Pro firmware update."
+    ],
+    "sources": [
+     "https://www.macrumors.com/2020/06/23/ios-14-sound-recognition-alarms-doorbells/",
+     "https://en.wikipedia.org/wiki/IOS_14",
+     "https://www.macrumors.com/guide/ios-14-airpods/"
+    ]
+   },
+   {
+    "version": "14.5",
+    "headline": "Two new US English Siri voices were added, the gender picker was removed in favour of a 'Variety' picker, and Precision Finding added approach audio cues in Find My.",
+    "details": [
+     "Siri also stopped defaulting new setups to a female voice; users are prompted to choose.",
+     "Precision Finding's approach cue is played by the iPhone and is a legitimate IPSW asset candidate. It is distinct from an AirTag's own separation beep, which comes from AirTag firmware and never appears in an iPhone image."
+    ],
+    "sources": [
+     "https://9to5mac.com/2021/03/31/ios-14-5-siri-no-longer-defaults-to-a-female-voice-two-new-voices-added/",
+     "https://appleinsider.com/articles/21/03/31/siri-gets-two-new-voices-user-choice-at-setup-in-ios-145",
+     "https://www.apple.com/newsroom/2021/04/apple-introduces-airtag/",
+     "https://www.macrumors.com/how-to/use-precision-finding-airtag/"
+    ]
+   },
+   {
+    "version": "15.0",
+    "headline": "Background Sounds shipped with six looping ambient tracks, Announce Notifications added a pre-announcement tone, and FaceTime gained spatial audio and new microphone modes.",
+    "details": [
+     "The six tracks are Balanced Noise, Bright Noise, Dark Noise, Ocean, Rain and Stream. These are static looping files and are the clearest new extractable audio in this era.",
+     "Announce Notifications plays a tone before speaking a notification through connected headphones; the spoken part is dynamic TTS.",
+     "FaceTime spatial audio, Voice Isolation and Wide Spectrum are real-time processing, not new files."
+    ],
+    "sources": [
+     "https://support.apple.com/HT212775",
+     "https://support.apple.com/en-us/109346",
+     "https://9to5mac.com/2021/10/20/how-to-announce-notifications-on-iphone-siri-ios-15/",
+     "https://support.apple.com/en-us/101993"
+    ]
+   },
+   {
+    "version": "15.4",
+    "headline": "A fifth American Siri voice, gender-neutral and internally called 'Quinn', was added.",
+    "details": [
+     "Labelled 'America (Voice 5)' in Settings; Apple described it as recorded by a member of the LGBTQ+ community."
+    ],
+    "sources": [
+     "https://www.macrumors.com/2022/02/22/ios-15-4-new-siri-voice/",
+     "https://techcrunch.com/2022/02/24/siri-gains-a-new-gender-neutral-voice-option-in-latest-ios-update/"
+    ]
+   },
+   {
+    "version": "16.0",
+    "headline": "VoiceOver gained the Eloquence synthesizer and several new voices, the Find My ping sound was redesigned, and iPhone 14 added Crash Detection audio and an optional power-on/off chime.",
+    "details": [
+     "VoiceOver added Eloquence, higher-quality US English voices (Evan, Nathan, Zoe), novelty voices (Bells, Bubbles, Jester, Superstar), and speech support for 20+ more languages.",
+     "Find My's device-ping sound changed from the classic radar-blip to a newer ringtone-style sound, observed in iOS 16 beta 5 (8 August 2022) and assumed to have reached 16.0 (20A362).",
+     "Crash Detection and Power On & Off Sounds are iPhone 14 features and shipped on that device's out-of-box build 16.0.1 (20A371)."
+    ],
+    "sources": [
+     "https://afb.org/aw/23/10/18078",
+     "https://9to5mac.com/2022/08/08/find-my-new-sound-alert-ios-16/",
+     "https://support.apple.com/en-us/104959",
+     "https://www.macrumors.com/2022/09/07/iphone-14-mac-like-startup-sound/"
+    ]
+   },
+   {
+    "version": "17.0",
+    "headline": "More than 20 new ringtones and more than 10 new alert tones were added, the default alert tone changed from Tri-tone to Rebound, Live Voicemail added a chime, and Personal Voice and Live Speech introduced user-generated synthetic speech.",
+    "details": [
+     "New ringtones include Arpeggio, Breaking, Canopy, Chalet, Chirp, Daybreak, Departure, Dollop, Journey, Kettle, Mercury, Milky Way, Quad, Radial, Scavenger, Seedling, Shelter, Sprinkles, Steps, Storytime, Tease, Tilt, Unfold and Valley. 'Reflection' remained the default ringtone.",
+     "Tri-tone was not removed, only displaced as the default.",
+     "Live Voicemail plays a brief chime when a caller starts leaving a message.",
+     "Personal Voice builds an on-device voice model from about 15 minutes of the user's recorded speech (A12 Bionic and later); Live Speech speaks typed text during calls and in person.",
+     "The Siri wake phrase was shortened so 'Siri' works without 'Hey'.",
+     "NameDrop is reported to have its own sound effect, but only in social-media demo video, not written press. Treat as unverified."
+    ],
+    "sources": [
+     "https://www.macrumors.com/how-to/try-new-ringtones-text-tones-iphone/",
+     "https://en.wikipedia.org/wiki/IOS_17",
+     "https://www.apple.com/newsroom/2023/06/ios-17-makes-iphone-more-personal-and-intuitive/",
+     "https://www.apple.com/newsroom/2023/05/apple-previews-live-speech-personal-voice-and-more-new-accessibility-features/",
+     "https://voicebot.ai/2023/06/05/apple-changing-hey-siri-wake-word-to-just-siri-and-other-wwdc-news/"
+    ]
+   },
+   {
+    "version": "17.1",
+    "headline": "The Siri voice assets used by VoiceOver were repackaged at much lower fidelity, reportedly shrinking the US English download from roughly 450 MB to roughly 66 MB.",
+    "details": [
+     "VoiceOver users described the result as grainy and stuttering; the larger files reportedly remained reachable only via the per-activity voice picker under Accessibility > VoiceOver > Activities.",
+     "This is sourced entirely from AppleVis forum threads, reached through search-engine snippets because the site returns HTTP 403 to automated fetching. It should be confirmed by comparing actual asset sizes between a 17.0 and a 17.1 image rather than trusted as reported."
+    ],
+    "sources": [
+     "https://applevis.com/forum/ios-ipados/has-anyone-noticed-siri-voices-voiceover-sound-terrible-ios171",
+     "https://applevis.com/forum/ios-ipados/using-siri-voices-aren-t-static-voiceover"
+    ]
+   },
+   {
+    "version": "17.2",
+    "headline": "A 'Default Alerts' control was added to Settings, letting users pick the system-wide default notification sound and reinstate Tri-tone.",
+    "details": [
+     "No new sound file; it exposes existing sounds and confirms none of the pre-17.0 tones were deleted."
+    ],
+    "sources": [
+     "https://9to5mac.com/2023/11/28/ios-17-2-beta-4-change-default-notification-sound/",
+     "https://www.macworld.com/article/2156872/ios-17-2-change-default-alert-notification-sound-tri-tone-rebound.html"
+    ]
+   },
+   {
+    "version": "18.0",
+    "headline": "Two new Background Sounds ('Night' and 'Fire') were added, Vocal Shortcuts let users record custom trigger phrases, and Music Haptics synced the Taptic Engine to Apple Music playback.",
+    "details": [
+     "Night and Fire extend the six tracks introduced in 15.0 to eight.",
+     "Vocal Shortcuts stores user-recorded speech rather than shipping Apple audio.",
+     "Music Haptics produces haptics, not audio.",
+     "iPhone 16 models added Audio Mix in Photos, post-capture remixing of video audio using the four-microphone array; it is hardware-gated to that generation."
+    ],
+    "sources": [
+     "https://www.macrumors.com/2024/07/10/ios-18-new-background-sounds/",
+     "https://www.idownloadblog.com/2024/07/10/apple-ios-18-background-sounds-night-fire-ambient-soundscapes/",
+     "https://www.afb.org/blog/entry/ios-18-accessibility-features",
+     "https://www.macrumors.com/how-to/iphone-16-edit-spatial-audio-in-video-audio-mix/"
+    ]
+   },
+   {
+    "version": "18.1",
+    "headline": "AirPods Pro 2 gained an FDA-authorised Hearing Test, Hearing Aid and Hearing Protection, paired with this release rather than 18.0.",
+    "details": [
+     "The Hearing Test is on-device pure-tone audiometry, so calibrated test tones are played through the earbuds; whether those tones live in the iOS image or in AirPods firmware (7B19 and later) needs checking at extraction time.",
+     "18.1 is build 22B83, released 28 October 2024."
+    ],
+    "sources": [
+     "https://www.apple.com/newsroom/2024/09/apple-introduces-groundbreaking-health-features/",
+     "https://www.forbes.com/sites/anthonykarcz/2024/10/31/how-to-take-a-hearing-test-in-ios-181-with-airpods-pro-2/"
+    ]
+   },
+   {
+    "version": "26.0",
+    "headline": "Seven new ringtones and eight new Background Sounds were added, and Live Translation and Workout Buddy introduced new generated-speech features.",
+    "details": [
+     "The new ringtones are six remixed variants of Reflection (Buoyant, Dreamer, Pond, Pop, Reflected, Surge) plus one wholly new tone, 'Little Bird'. These are the first new stock ringtones since iOS 17.",
+     "The eight added Background Sounds are Babble, Steam, Airplane, Boat, Bus, Train, Rain on Roof and Quiet Night, doubling the set from eight to sixteen.",
+     "Live Translation speaks translations aloud in Phone calls and through supported AirPods; Workout Buddy narrates workout stats using a text-to-speech model built from Apple Fitness+ trainer voice data. Both are runtime synthesis, so look for voice-model resources rather than new .caf files.",
+     "A new Siri listening tone is reported alongside the Liquid Glass redesign, sourced from an accessibility roundup rather than Apple.",
+     "The legacy system sounds (lock/unlock, charger connect, call hang-up, keyboard clicks) were explicitly not redesigned; VoiceOver users noted the mismatch with the new visual language.",
+     "Widespread reports of 'no notification sound after updating' are a Focus/text-tone reset bug, not an asset removal."
+    ],
+    "sources": [
+     "https://www.macrumors.com/how-to/new-iphone-ringtones-ios-26/",
+     "https://9to5mac.com/2025/09/30/ios-26-adds-seven-brand-new-iphone-ringtones-listen-here/",
+     "https://www.macrumors.com/2025/06/09/ios-26-background-sounds/",
+     "https://www.apple.com/newsroom/2025/09/new-apple-intelligence-features-are-available-today/",
+     "https://afb.org/blog/entry/ios-26-accessibility-features",
+     "https://discussions.apple.com/thread/256145526"
+    ]
+   },
+   {
+    "version": "26.1",
+    "headline": "New European Portuguese Siri voices were added, distinct from the existing Brazilian Portuguese set.",
+    "details": [
+     "Confirmed by Apple's own SDK release notes, which document known issues with voice previews falling back to legacy pt-BR and with word stress in 'the initial pt-PT Siri Voices'.",
+     "This is the clearest case in the 26 line of a voice set changing on a minor release rather than at .0."
+    ],
+    "sources": [
+     "https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-26_1-release-notes"
+    ]
+   },
+   {
+    "version": "26.2",
+    "headline": "Reminders gained an 'Urgent' toggle that fires a full alarm through the new AlarmKit framework instead of a notification chime.",
+    "details": [
+     "This adds an audio-triggering surface rather than, most likely, new files; worth a spot-check against the 26.0 and 26.1 tone inventories to confirm."
+    ],
+    "sources": [
+     "https://www.applevis.com/blog/apple-releases-ios-262-ipados-262-new-airdrop-feature-reminders-alarms-airpods-live",
+     "https://www.macrumors.com/2025/12/24/new-things-iphone-can-do-ios-26-2/"
+    ]
+   },
+   {
+    "version": "26.4",
+    "headline": "A framework was added that lets third-party audio accessories report headphone information for automatic audio switching, available to developers only.",
+    "details": [
+     "Apple's release notes state it is developer-testing-only on iPhone and iPad in 26.4, with customer availability limited to the EU in a later 26.x release. No new audio assets, and not a reason to download 26.4 on its own."
+    ],
+    "sources": [
+     "https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-26_4-release-notes"
+    ]
+   }
+  ],
+  "device_notes": [
+   "Original iPhone (iPhone OS 1.0): the founding set of 25 ringtones including Marimba, plus the first UI sound set. Every later diff is measured against this. https://en.wikipedia.org/wiki/IPhone_OS_1",
+   "iPhone 4S (iOS 5.0 / 5.0.1, 9A334 / 9A405): Siri's activation and response audio cues, 4S-exclusive for over a year. https://ipsw.me/download/iPhone4,1/9A405/",
+   "iPhone 6s / 6s Plus (iOS 9.0): first Taptic Engine, producing 3D Touch peek/pop and Quick Action haptics that no earlier iPhone hardware can generate. Every later haptic feature builds on this actuator. https://en.wikipedia.org/wiki/IPhone_6S",
+   "iPhone 7 / 7 Plus (iOS 10.0.1, build 14A403): reported to have shipped on its own build while other devices stayed on 10.0 (14A346). First iPhone with no headphone jack and a non-moving haptic home button. Exclusivity is attested by IPSW mirrors but was not positively confirmed.",
+   "iPhone X (iOS 11.1, build 15B93): the 'Reflection' ringtone was playable only on iPhone X, although the file itself is in the shared 11.1 image - software gating, not build exclusivity. AppleVis users also report a Face ID unlock chime present on the earliest Face ID devices that disappeared from later builds; low confidence. https://www.macrumors.com/2017/11/01/iphone-x-reflection-ringtone/",
+   "iPhone 11 (iOS 13 era): first iPhone with the U1 ultra-wideband chip. The audio payoff - Precision Finding's directional approach cues - did not ship until iOS 14.5, so the device-launch build and the audio-introducing build are different releases. https://www.macrumors.com/2021/04/20/airtag-u1-chip-precision-finding/",
+   "iPhone SE (2nd generation, 2020): received iOS 13.4.1 build 17E8258, which no other device got (general devices got 17E262). Confirmed device-exclusive build tree; no audio change documented.",
+   "iPhone 14 (iOS 16.0.1, build 20A371): Crash Detection's alarm, repeated 'whoops' countdown and looped spoken emergency message, plus the optional Power On & Off Sounds chime (iPhone 14-only at introduction, later extended to iPhone 15/16/17). General devices got 16.0 (20A362). https://support.apple.com/en-us/104959 , https://www.macrumors.com/2022/09/07/iphone-14-mac-like-startup-sound/",
+   "iPhone 15 / 15 Pro (iOS 17.0, builds 21A326 / 21A327): out-of-box builds distinct from the 21A329 image pushed to existing devices on 18 September 2023.",
+   "iPhone 16 line (iOS 18.0): Audio Mix in Photos, hardware-gated to the iPhone 16 four-microphone array. iOS 26 opened the API to third-party apps but still only on iPhone 16 and newer. https://www.macrumors.com/how-to/iphone-16-edit-spatial-audio-in-video-audio-mix/",
+   "iPhone 16e (iOS 18.3 build 22D8063 and 18.3.1 build 22D8075): the only device on those builds; general devices got 22D63 and 22D72. The 22D8075-vs-22D72 pair is the best available like-for-like device diff.",
+   "iPhone 17 / 17 Pro / iPhone Air (iOS 26.0, preinstall builds 23A330 and 23A345): distinct from the general 26.0 build 23A341. No audio difference is documented - specifically, no new or changed camera shutter sound was found for the new Center Stage front camera."
+  ],
+  "gaps": [
+   "The best primary source was unreachable for the entire research window. theiphonewiki.com returned HTTP 502 and theapplewiki.com returned HTTP 403 to every researcher who tried, across multiple slices and both WebFetch and curl. That site's Tones article and build tables are the only known public source for exact per-version tone-file diffs and a definitive list of device-exclusive build IDs. Everything here about which files changed is inferred from press coverage, not from a file list. Re-run those lookups when the site is back up.",
+   "Six of eight researchers exhausted their web-search quota mid-task. Every 'no audio change found' should be read as 'not examined', not as a verified negative. The specifically unexamined ranges are: 1.0.x, 1.1.x, 3.0.1, 3.1-3.1.3, 3.2, 4.0.x, 4.1, 5.1, 5.1.1, 6.0.1, 6.1.1-6.1.6; most 12.x and 15.x security-only patches; and exhaustive per-patch checks from 17.3 onward through 18.7.",
+   "No evidence was found of an audio-asset change in any three-component x.y.z release from iOS 12.0 through 26.6. Apple publishes SDK release notes only at x.y granularity, so there is no official changelog to check for any x.y.z patch. This is why the must-have list has two entries rather than the 10-25 requested - the evidence does not support more. The rest of the priority list is device-tree coverage insurance, not documented audio change.",
+   "Researchers disagree on when Siri's deep-learning voice arrived. One slice places the concatenative-to-neural switch at iOS 11.0; another places the deep mixture density network debut at iOS 10.0 with iOS 11.0 being a new-voice-talent refresh. Both cite the same Apple machine learning page (https://machinelearning.apple.com/research/siri-voices). We have not resolved which reading is correct.",
+   "Researchers disagree on where the first siren-class emergency audio lands. One slice attributes the Emergency SOS countdown siren to iOS 11.0 with good sourcing; another raises Wireless Emergency Alerts (WEA/CMAS) around iOS 6.1 but notes the AT&T rollout in June 2013 came via a carrier-settings bundle, not necessarily an OS build. Whether the WEA attention signal is an OS asset or a carrier-bundle asset is unresolved.",
+   "The task brief's premise that iOS 5.0 carried a large tone refresh is not supported. The default-tone-set expansion was iOS 4.2.1 (17 new text tones) and the re-edit was 4.3; iOS 5.0's tone change was infrastructural (iTunes Tone Store). Similarly, the brief's association of a new Siri voice generation with iOS 18 is not supported - 18.0/18.1 shipped a visual redesign around the existing voice, and the new expressive, user-tunable Siri voice is reported for iOS 27.0 (released 2026-09-14), which falls outside the stated 1.0-26.6 scope.",
+   "Siri and VoiceOver voices are commonly delivered as on-demand Mobile Assets after setup rather than baked into the shipping IPSW. A static IPSW extraction may not contain the voices a release nominally adds. This caveat applies to every Siri-voice entry above (13.0, 14.5, 15.4, 26.1) and to VoiceOver's enhanced-quality voices. Supplementing with a live device's downloaded-asset cache may be necessary.",
+   "It is unresolved for several features whether the audio lives in the iOS image or in accessory firmware: the Find My AirPods chirp (10.3), the AirPods Pro 2 hearing-test tones (18.1), AirTag separation beeps (not in iOS at all), and the HomePod setup sounds. These must be settled by inspection, not research.",
+   "Unverified leads that were deliberately not promoted to findings: iOS 11.2.5 as the only mid-cycle patch with a new audio feature (HomePod pairing plus Siri News) - asserted by a researcher with no URL; a Sherwood Forest / Choo Choo ringtone relocation possibly tied to 14.7.1 - Apple Support Community posts only; a NameDrop sound effect in 17.0 - social-media video only, no written press; alarm-tone names (Birdsong, Helios, Orbit, Springtide, Early Riser, First Light, Droplets, Bright-Eyed, Sunny) appearing in 2026 roundups with no source tying them to iOS 26 rather than an earlier Sleep/Bedtime release; and the claim that pre-iOS-11 Siri voices survive under VoiceOver names (Aaron, Nicky, Arthur, Martha, Catherine, Gordon).",
+   "Two entries rest on AppleVis forum threads that could only be read through search-engine snippets because the site returns HTTP 403 to automated fetching: the iOS 17.1 VoiceOver voice-fidelity regression (450 MB to 66 MB) and the iOS 26 observation that legacy system sounds were not redesigned. Both should be verified against actual extracted files.",
+   "Only two audio removals were established, and neither is primary-sourced. The iOS 7.0 unlock-chime removal is sourced to jailbreak-tweak blog coverage; the iOS 9.0 removal of Nike + iPod and its spoken workout prompts is sourced to Apple Support Community and forum threads. No removal at all could be substantiated for iOS 12.0-15.8 or for any 26.x release.",
+   "Candidate removals named in the brief that turned up no citable audio evidence and should be treated as open: Newsstand to News, iTunes Ping, Passbook to Wallet, Game Center sound changes, Home app sounds, Apple Watch pairing audio, and deprecated Siri/VoiceOver languages or language packs. Voice Control was never removed - it persists as an Accessibility feature.",
+   "The structural history of the UISounds directory itself (subfolder additions, reorganisations, path changes across versions) could not be established from any web source. This is a filesystem fact that should be answered by diffing directory listings across extracted images rather than by more research.",
+   "Several build IDs in the timeline are absent, and those present come from Wikipedia and IPSW mirrors rather than from Apple. The exclusivity claims for 17E8258 (iPhone SE 2), 22D8063 / 22D8075 (iPhone 16e) and 14A403 (iPhone 7) were cross-checked against mirror listings but not against an authoritative build table, because the authoritative source was down. Verify before relying on them.",
+   "Classic device-exclusive build candidates were never checked at all because the relevant wiki was down: iPhone 4S (9A406), iPhone 6 / 6 Plus (12A405), and the full iPhone X 11.1 / 11.2 build lineage."
+  ]
+ },
+ "per_slice": [
+  {
+   "slice": "era-1-6",
+   "kept": 5,
+   "refuted": 3,
+   "notes": "Scope note: I actively verified 2.0–2.2.1 (via Wikipedia's iOS 2 article) and found no audio-asset-relevant change — 2.2's headline feature (on-device Podcasts downloading) is a content-delivery change, not a new bundled system sound. I did NOT get to individually research every other patch in the slice (1.0.x/1.1.x, 3.0.1/3.1–3.1.3/3.2, 4.0.1/4.0.2/4.1, 5.0.1/5.1/5.1.1, 6.0.1, 6.1.1–6.1.6) before hitting this session's web-search budget cap (200/200) partway through — those should not be read as \"checked, no change,\" only as \"not examined.\" If budget allows a follow-up pass, 4.1 (Game Center) and 5.1 (Japanese Siri/voice additions, camera-shutter-adjacent changes) are the best candidates to check next.\n\nTwo theiphonewiki lookups (the site's own \"Tones\" article, which would likely have been the single best primary source for exact per-version tone-file diffs) failed both via WebFetch and via curl with a 502/CloudFront error — the site itself appeared to be down throughout this session, not blocked by my tooling. web.archive.org fetches were also unavailable in this environment. Re-run against theiphonewiki once it's back up; it likely has exact tone-file-level diffs that would sharpen or correct the confidence levels above, especially for 4.2.1/4.3 (SMS tones) and 5.0 (Siri).\n\nKey correction to the task brief: the \"large tone refresh\" language pointed at iOS 5.0, but the evidence found points to iOS 4.2.1 (Nov 2010) as the release that actually added new default tone files (17 new SMS/text tones), with iOS 4.3 (Mar 2011) then re-editing those same files (shortening them). iOS 5.0's tone-related change was infrastructural (iTunes Tone Store + more alert categories became customizable), not a refresh of Apple's own default tone assets — that bigger default-tone-set refresh (27 new ringtones) actually happened in iOS 7, outside this slice.\n\nAll dates given without a fresh in-session citation (1.0, 3.0, 4.0, 4.3, 5.0, 6.0, 6.1 release dates) are well-established Apple release dates I'm confident in from general knowledge; where I did fetch a direct source this session confirming date/build (4.2.1 = 2010-11-22, build 8C148), that's cited above."
+  },
+  {
+   "slice": "era-7-11",
+   "kept": 12,
+   "refuted": 8,
+   "notes": "Methodology: used WebSearch/WebFetch against Wikipedia's per-major-version release-note tables (iOS 7/8/9/10/11 articles, which reproduce Apple's own patch-level release notes), Apple Newsroom, Apple's ML research blog, Apple Support pages, and contemporaneous coverage (9to5Mac, MacRumors, Macworld, MacStories, TechCrunch-adjacent outlets, iDownloadBlog). Every claim above has at least one URL; anything I could not find a citation for was left out rather than guessed (e.g., I could not confirm a specific patch-level change to the Apple Pay Cash sound, Apple Music's UI sounds, or a HomeKit/Home-app-specific sound effect, despite searching).\n\nBottom line on \"which patches to actually add\": across the whole 7.0-11.4.1 slice, the only x.y.z (non-bare-minor) release with real evidence of a new audio-relevant *feature* landing mid-cycle is iOS 11.2.5 (HomePod pairing support + Siri News). Every other audio-flavored patch-level release note I found (8.1.2, 9.0.1, 9.3.2, 10.0.2, and the second-hand claim about 11.0.2) is a playback/driver *bug fix* with no evidence of a new, removed, or altered sound *file* - I'd treat those as low-value downloads for a file-level audio archive, though they're cheap to grab if the team wants belt-and-suspenders coverage since bug-fix wording sometimes does correspond to a swapped asset. All of the big, well-documented sound-design stories in this era (iOS 7.0 redesign, iOS 10.0 lock/keyboard/iMessage-effects redesign, iOS 11.0 new Siri voice + Emergency SOS siren, the AirPods/Find My AirPods features, Apple Pay's chime, Reflection on iPhone X) land on bare major.minor or device-launch builds that the base plan already downloads - they're included here purely to give accurate documentation text, not as new download requests. Two items are flagged with heavier caveats worth re-checking once files are in hand: (1) the AirPods pairing chime's exact debut build (10.2 vs. an earlier point release) - I found no teardown pinning it precisely; (2) whether \"Find My AirPods\" and 11.2.5's HomePod setup actually add new files to the iOS filesystem at all, versus playing sounds stored on the accessory itself or reusing existing assets."
+  },
+  {
+   "slice": "era-12-15",
+   "kept": 11,
+   "refuted": 6,
+   "notes": "Scope covered: iOS 12.0–15.8 (2018-2023). WebSearch budget was exhausted (200/200) partway through this session, after which I continued with WebFetch only, so this pass is not fully exhaustive — treat gaps as 'not yet checked' rather than 'confirmed no change,' especially for the many x.y.z security-only patches I did not individually verify (12.1.4, 12.4.1/.5-.9, 12.5.2-.5.7, 13.1.x-13.6.1, 14.0.1-14.8.1, 15.0.1-15.3.1, 15.5-15.8.3, etc.). Apple's own 'About iOS X Updates' security pages (e.g. support.apple.com/en-us/118387, 118390, 118392) list each of these and are the fastest way to spot-check the remainder.\n\nKEY META-FINDING for the actual ask (part a, patch releases worth adding): every audio-relevant change I could confidently source in this slice lands on a major.minor release (13.0, 13.6, 14.0, 14.2, 14.4, 14.5, 15.0, 15.1, 15.4) that is already covered by your one-per-major.minor baseline plan. I found no strong, citable evidence of an audio-asset change on any genuine three-component patch build (x.y.z with non-zero z) in 12.0-15.8 — the one candidate (Sherwood Forest/Choo Choo ringtone relocation, possibly tied to 14.7.1) is anecdotal-only (Apple Support Community forum posts, no Apple documentation or press coverage) and should be verified by direct asset diff rather than trusted as-is. So for (a), the honest answer for this slice is: no patch releases are demonstrably worth adding beyond the baseline major.minor set, based on available public evidence.\n\nFor (b) removals: I found none I could substantiate for iOS 12.0-15.8. The Sherwood Forest/Choo Choo item above is the only removal-shaped signal, and it's weak/anecdotal.\n\nImportant recurring caveat that applies to several 'high confidence' items above: Siri neural-voice models (13.0 base voice change, 14.5's two new voices, 15.4's 'Quinn') and some VoiceOver voices are commonly delivered via Apple's on-demand 'Mobile Asset' download mechanism rather than fully embedded in the shipping IPSW. A static IPSW filesystem extraction may miss some or all of these even on the exact iOS version that introduced them — worth checking specifically under /System/Library/Assets or the speech-synthesis voice-asset catalogs, and possibly supplementing with a live device's downloaded-asset cache rather than relying on IPSW extraction alone for TTS voices specifically.\n\nDistinguish two different meanings of 'AirTag sound' that got tangled in sourcing: (1) the AirTag's own separation/anti-stalking beep is emitted by AirTag firmware from the AirTag's own speaker — never present in an iPhone IPSW; (2) Precision Finding's approach audio cue (14.5) is played by the iPhone/Find My app itself and is a legitimate IPSW-asset candidate.\n\nGenuinely new, concrete, extractable audio-asset candidates worth prioritizing in your existing baseline builds: 15.0's six Background Sounds loops (strongest single find in this slice), 14.5's two new Siri voices, 15.4's fifth Siri voice, and 15.0's Announce-Notifications pre-tone. 14.2's Intercom chime is plausible but unconfirmed by any source naming an actual asset."
+  },
+  {
+   "slice": "era-16-18",
+   "kept": 9,
+   "refuted": 6,
+   "notes": "Methodology: WebSearch + WebFetch against Apple Newsroom/Support, Wikipedia iOS version-history pages, MacRumors/9to5Mac/AppleInsider/Macworld/PhoneArena/TechCrunch/Forbes coverage, and Apple Community threads. theiphonewiki.com was returning HTTP 502 for the entire session (site-wide outage) and could not be used despite repeated retries. My WebSearch quota was exhausted partway through (after ~15 queries) so the back half of the research (roughly iOS 17.3 onward for exhaustive per-point-release checks, and all of 18.2-18.7) relied on WebFetch against known/guessed URLs rather than fresh searches - treat the \"no_change_versions\" list as \"no evidence surfaced in the sources I could reach,\" not as an exhaustive negative proof for every one of those builds.\n\nDropped claim: I recall (from training knowledge, not sourced here) that iOS 16 added the classic \"Eloquence\" synthesizer as a native VoiceOver voice option, which would be a notable accessibility-voice addition worth its own IPSW pull. I could not get a working citation for it this session (AppleVis blog returned HTTP 403 to both WebFetch and curl with multiple user agents; guessed Apple Newsroom/MacRumors URLs 404'd without search to find the real slug). Per the task's citation rule I'm omitting it rather than reporting it uncited - worth a follow-up fetch attempt (try Google cache, Bing cache, or archive.org for applevis.com's iOS 16 accessibility coverage) since if true it's a strong 16.0 \"added\" candidate.\n\nAlso considered and excluded as out-of-scope for \"new audio file\" purposes (real features, but they modify/process existing audio rather than add new discrete sound assets, so I did not include them as findings): Apple Music Sing (karaoke vocal-adjustment, iOS 16.2), Voice Isolation for calls extended to third-party VoIP apps (iOS 16.4), Check In's proactive-check messaging (no distinct sound found beyond standard notification tones, iOS 17.0), and the shortened \"Siri\" (no \"Hey\") wake-word model (a recognition-model change, not a bundled audio asset, and I could not pin its exact ship version this session).\n\nHighest-confidence \"must pull\" builds from this slice, in order: iOS 17.0 (ringtone/tone refresh + Rebound default + Live Voicemail chime + Personal Voice/Live Speech), iOS 18.1 (AirPods Pro 2 Hearing Test/Aid/Protection + new Siri redesign), iOS 16.0 (Crash Detection siren + Find My sound redesign), iOS 18.0 (Music Haptics + Vocal Shortcuts)."
+  },
+  {
+   "slice": "era-26",
+   "kept": 8,
+   "refuted": 2,
+   "notes": "Build/date table used throughout (source: https://en.wikipedia.org/wiki/IOS_26, cross-checked against https://support.apple.com/en-us/123075): 26.0=23A341 (2025-09-15, iPhone 17/17 Pro/Air preinstall was 23A330/23A345), 26.0.1=23A355 (2025-09-29, security-only), 26.1=23B85 (2025-11-03), 26.2=23C55 (2025-12-12), 26.2.1=23C71 (2026-01-26, AirTag 2 support only), 26.3=23D127/23D8128-for-iPhone-17e (2026-02-11), 26.3.1=23D8133 (2026-03-04) and 26.3.1(a)=23D771330a (2026-03-17, security), 26.4=23E246 (2026-03-24), 26.4.1=23E254 (2026-04-08), 26.4.2=23E261 (2026-04-22), 26.5=23F77 (2026-05-11), 26.5.1=23F81 (2026-06-01, wired-charging fix for iPhone Air/17), 26.5.2=23F84 (2026-06-29), 26.6=23G71 (2026-07-27), 26.6.1=23G83 (2026-08-17), 26.6.2=23G90 (2026-09-08).\n\nNEGATIVE FINDINGS (explicitly checked, no evidence of a real audio change — do not invent one):\n- iPhone 17 / iPhone Air launch: found no evidence of a new/changed camera shutter sound despite the new 18MP Center Stage front camera (square-sensor auto-rotate/zoom for selfies). Multiple how-to articles on Center Stage describe only the visual/framing behavior, none mention an audio change. [https://www.macrumors.com/how-to/iphone-17-use-center-stage-front-camera/]\n- Core system sounds were NOT redesigned alongside the Liquid Glass visual overhaul: lock/unlock, charger-connect, call hang-up, and keyboard-click sounds are reported as unchanged from the iOS 7 era, and blind/VoiceOver users on AppleVis specifically flagged this mismatch between the new visual language and the old audio language. Treat 'no redesign of legacy system sounds in 26.0' as a documented negative, not an oversight in this research. [AppleVis forum thread title/summary via search snippet — direct fetch of the thread was blocked with HTTP 403, so this rests on the search-result summary rather than the primary page text; corroborated independently by a general-audience search-result summary describing the same gap]\n- CarPlay's connection chime is confirmed unchanged: 'CarPlay plays a fixed two-tone chime the moment it connects, and iOS 26 ships no setting to change it... the CarPlay chime hasn't changed since 2014.' [https://addcarwidgets.com/blog/carplay-startup-sound]\n- Widespread user reports of 'no notification sound after updating to iOS 26' are a Focus/text-tone-reset SOFTWARE BUG (some devices had Text Tone silently reset to 'None', or Focus silently enabled), not an intentional removal of any sound asset; several users report it improved (not universally fixed) after updating to 26.1. Do not mistake this for an audio-asset removal. [https://discussions.apple.com/thread/256145526, https://www.applevis.com/forum/apple-beta-releases/audio-notifications-not-working-ios-beta-26]\n- No credible evidence found that any ringtone/alert tone/alarm tone was actually REMOVED in any 26.x release. One ambiguous forum remark exists that 'some alert tones are no longer usable AS ringtones' (a cross-assignment restriction, not a deletion of the underlying file) — too weak/unsourced to report as a finding.\n\nUNRESOLVED / LOW-CONFIDENCE ITEM DELIBERATELY EXCLUDED FROM THE CHANGES LIST: several 2026 'best alarm sounds' roundups list alarm-tone names (Birdsong, Helios, Orbit, Springtide, Early Riser, First Light, Droplets, Bright-Eyed, Sunny) that do not appear in older (pre-26) alarm-tone lists I'm aware of, which would suggest they're new in iOS 26. However, no source I found explicitly ties their introduction to iOS 26 versus an earlier release (they may be older Sleep/Bedtime wake-up sounds), so I did not include this as a confirmed finding. Worth a direct asset diff against a pre-26 IPSW rather than further web research.\n\nA separate aggregator (gizdev.com) publishes long lists claiming '80+ ringtones,' '40+ alert tones' (Tri-Tone, Chime, Glass, etc.), and '10 alarm tones' as 'iOS 26' sounds, but these read as a full current-state inventory of the tone library, not a diff against 25.x — several of the alert-tone names listed (Tri-Tone, Chime, Glass, Note) are long-standing iOS system sounds dating to iOS 6/7, not new in 26. I deliberately did NOT cite this source for any 'added' claim; it's only useful for its filename hints (e.g., 'ReflectionAlt1-EncoreRemix') corroborating that the new Reflection variants exist as separate files, which is already independently confirmed by MacRumors/9to5Mac.\n\nTwo Apple Newsroom/developer-docs fetches failed (404) despite being the most likely canonical primary sources: apple.com/newsroom's May-2025 accessibility-features preview (URL guessed, not confirmed to exist at that slug) and the iOS 26.0.1 developer release-notes JSON endpoint (no dedicated 26.0.1 SDK notes page exists — Apple only publishes SDK-granularity release notes for x.y, not x.y.z, which is itself a useful negative data point: there is no official Apple developer changelog to check for any x.0.1/x.2.1/x.3.1/x.4.1/x.4.2/x.5.1/x.5.2/x.6.1/x.6.2 patch, only for x.0, x.1 ... x.6). My WebSearch quota was exhausted mid-session (200/200), so the Apple Newsroom accessibility press release for iOS 26 (typically published around Global Accessibility Awareness Day, May 2025) could not be located and cross-checked — the AFB.org summary I used instead is a reputable secondary source (American Foundation for the Blind) but is one step removed from Apple's own wording for the 'Siri listening tone' and Background-Sounds-naming items; if you can run one more search, 'Apple Newsroom accessibility features iOS 26 2025' fetched from apple.com/newsroom directly would be the highest-value next query to firm up confidence on those two items and to check for any additional Sound Recognition / Personal Voice / Live Listen audio details I may have missed."
+  },
+  {
+   "slice": "device-exclusive",
+   "kept": 9,
+   "refuted": 8,
+   "notes": "Coverage is uneven because public teardown/asset-diff journalism (the strongest source type per the brief) exists mainly for a handful of headline moments - the iPhone X 'Reflection' ringtone, the iOS 11 wireless-charging sound discovery, and Apple's own Crash Detection support docs are the cleanest, highest-confidence hits. Several requested items (Touch ID's own sound, Action Button's own sound, iPhone 4's FaceTime sound, iPhone 13's device-specific audio) turned up no citable evidence after searching, so they're listed honestly as no-change/no-evidence rather than guessed at.\n\nDEVICE-EXCLUSIVE BUILDS (the core of part (c) of the task): I found two well-corroborated (3+ independent sources each) cases of an iOS build ID that only one device model ever received, meaning any device-specific asset in that tree exists nowhere else:\n1. iOS 13.4.1 build 17E8258 - iPhone SE (2nd generation, 2020) only (iPhone12,8); general devices got 17E262.\n2. iOS 18.3 build 22D8063 and iOS 18.3.1 build 22D8075 - iPhone 16e only (iPhone17,5); general devices got 22D63 / 22D72 respectively.\nA third likely case - iOS 10.0.1 build 14A403 shipping with iPhone 7/7 Plus at launch while other devices stayed on iOS 10.0 (14A346) - is well-attested by IPSW mirrors but I could not positively rule out some other device also receiving 14A403, so I've marked it medium confidence rather than as a third confirmed case. Note theiphonewiki.com (the single best source for a definitive historical list of every device-exclusive build) was returning HTTP 502 for the entire session and could not be reached via WebFetch or curl, so I could not cross-check the classic candidates I'd expect there (e.g. iPhone 4s 9A406, iPhone 6/6 Plus 12A405, iPhone X's exact 11.1/11.2 build lineage) against its build-号 tables; treat any exclusivity claim I did NOT explicitly confirm via ipsw.me/betawiki/9to5mac cross-sourcing as unverified, not as evidence of non-exclusivity.\n\nWebSearch quota was exhausted partway through (the tool reported 200/200 calls used for the session) after I'd covered iPhone 4s through iPhone 17e; remaining gaps (iPhone 3G, iPhone 5/5c specifics, a definitive iPhone 17/Air/17e exclusive-build check, and re-verifying the Reflection ringtone's later XS/XR availability) were not fully closeable with WebFetch alone since several key pages (theiphonewiki.com, appledb.dev, betawiki.net, forums.macrumors.com) either 403'd or are JS-rendered SPAs that returned no content to a plain fetch. If more research budget is available, prioritize re-running theiphonewiki.com lookups for the classic 4s/6/6Plus/X exclusive-build candidates and a direct asset diff of the iPhone 16e vs iPhone 16 IPSW (22D8075 vs 22D72) to identify the actual removed/changed audio files, since that is the single most information-dense confirmed-exclusive build pair in this slice."
+  },
+  {
+   "slice": "siri-voices-accessibility",
+   "kept": 20,
+   "refuted": 1,
+   "notes": "Methodology and honesty caveats:\n\n1. Granularity mismatch with the brief: the brief asks specifically about three-part PATCH releases (x.y.z) beyond the already-planned one-build-per-x.y-line default. I found ZERO public evidence of any x.y.z (e.g. 16.4.1, 17.1.2, 14.5.1) release changing Siri/VoiceOver/accessibility audio — Apple's convention is that three-part patches are security/bug-fix only, features and voice-asset changes gate on x.y bumps. So my usable findings are almost all at the x.y (minor-line) level, which your default plan (one IPSW per major.minor) should already capture — I'm reporting them anyway because goal (c) asked for the human-readable \"why this build matters\" story, which your plan doesn't otherwise have.\n\n2. One important non-obvious minor-line finding: 17.0 vs 17.1 differ in Siri-voice-asset fidelity for VoiceOver (450MB->66MB compressed assets, quality regression, old asset only reachable via a different UI path). Since 17.0 and 17.1 are two different x.y values they should both already be in-plan, but flagging this explicitly matters because someone skimming \"iOS 17\" release notes would never learn this from Apple's own text — it's forum-sourced (AppleVis), and AppleVis blocks automated fetching (403), so I could only get this via search-engine-indexed snippets of the forum threads, not the raw thread text. Confidence: medium. Recommend the corpus team verify by diffing actual asset sizes between a 17.0 and 17.1+ build rather than relying further on my sourcing.\n\n3. Similarly forum-sourced and lower-confidence: the claim that pre-iOS-11 Siri voices survive inside VoiceOver's voice list under new names (Aaron/Nicky/Arthur/Martha/Catherine/Gordon). I could not open the two AppleVis threads directly (403 Forbidden on WebFetch); I only have search-engine synthesis of them. Flagged confidence: low. Worth an independent asset-name check in the actual 11.x-16.x filesystems.\n\n4. Corrected a likely wrong premise in the brief: \"iOS 18 Apple Intelligence Siri\" is NOT where Siri's voice generation actually changed. iOS 18.0/18.1 shipped only a visual redesign (glowing screen-edge animation) and richer language understanding around the SAME existing TTS voice; 18.2 added ChatGPT hand-off (routing, not a new voice). The actual new, more-expressive, user-tunable \"Siri AI\" voice model ships in iOS 27.0, releasing 2026-09-14 (two days from today) — see the 27.0 entry. Since that's a new major.minor line it should already be in your default download plan, but the framing/documentation should say \"iOS 27,\" not \"iOS 18,\" for the voice-generation story.\n\n5. Tool budget: the WebSearch tool's session quota (200 calls) was exhausted partway through this task; all research after that point used WebFetch only, either on URLs already surfaced by prior searches or on pages I guessed directly (Wikipedia per-version articles, support.apple.com, Apple Newsroom, MacRumors). This is why some entries (e.g., iOS 6.0 locale expansion, the legacy-voice-renaming claim) rely on a single or indirect source rather than multiple independently-verified ones — flagged via the confidence field in each case.\n\n6. Explicitly checked and found no Siri/VoiceOver-voice or accessibility-audio-asset change: iOS 16.4 (only Voice Isolation for calls [out of this slice — it's call-audio processing, not a Siri/VoiceOver voice or bundled accessibility audio asset], Flash Detection [visual], and a VoiceOver/Weather-map interaction fix), and iOS 18.1/18.2 (Apple Intelligence Siri UI redesign and ChatGPT hand-off, no voice-asset change).\n\n7. Not deeply chased due to time/budget: exact per-voice-name ship dates for VoiceOver's older \"Enhanced Quality\" voices (Ava, Allison, Susan, Tom, Nathan, Joelle, Noelle) — I confirmed the Enhanced/Compact quality *tier* concept dates to iOS 5 (2011), but could not pin individual voice names to individual iOS versions with a citable source in the time available. Also did not deeply verify Personal Voice's language/locale expansion history beyond English at launch, or hunt for possible additional Sound Recognition category additions in 16.x/17.x beyond the 14.0 baseline and the iOS 15.0 \"glass breaking\"/\"kettle\" additions and iOS 16.0 custom-sound training I did find.\n\nAll URLs above were live at fetch time (2026-09-12) except the two AppleVis forum URLs, which are cited from search-engine snippets only (direct fetch returned 403)."
+  },
+  {
+   "slice": "removals-and-oddities",
+   "kept": 5,
+   "refuted": 0,
+   "notes": "Scope note: I could not find solid, citable audio-removal evidence for several of the named examples in the brief, and rather than invent claims I'm flagging them as open/unconfirmed rather than reporting them as changes:\n- Newsstand → News (iOS 9, 2015): the app was replaced, but I found no evidence of a Newsstand-specific sound asset that was removed (its badge/notification presumably reused standard system sounds).\n- iTunes Ping → removed from Music/iTunes around iOS 6 (2012): Ping's shutdown is well documented, but no source described a dedicated Ping notification sound.\n- Passbook → Wallet rename (iOS 9, 2015): a UI rename with no evidence of an audio change.\n- Game Center sound/UI changes, Home app sound changes, Apple Watch pairing audio changes, deprecated Siri/VoiceOver languages, and removed language packs: searched but found no citable, version-specific audio evidence for any of these; treat as open leads for a future teardown-based (asset-diff) pass rather than a documented fact.\n- 'Voice Control' (pre-Siri): never actually removed — it persists today as an Accessibility feature and as the fallback when Siri is disabled — so this is not a removal case despite being in the brief's example list.\n- The UISounds directory's own history (subfolder additions/restructuring across versions) could not be verified this session: theiphonewiki.com returned 502s and theapplewiki.com returned 403s to automated fetches, and my WebSearch quota was exhausted (200/200) before I could find an alternate mirror or cached copy. This is the single most valuable remaining lead for the 'directory itself moved or was restructured' part of the brief — recommend a direct IPSW-to-IPSW directory-listing diff (e.g. iPhoneOS 3.x vs iOS 6 vs iOS 7 vs iOS 13 vs iOS 26) rather than further web research, since it's a filesystem fact you already have raw material to check yourself.\n- Where I list something as 'changed' (the iOS 11 Siri voice) rather than a hard 'removed', that's because the old voice was superseded/replaced rather than documented as literally deleted-with-nothing-added; I still included it because the underlying old-generation audio assets were confirmed retired.\n- All five entries above are the ones I'm confident enough to hand off; everything else searched came back either unconfirmed, a UI-only change with no audio component, or (for Nike+/Read & Speak) corroborated only by community forums rather than press/primary sources, which I've flagged via confidence: medium."
+  }
+ ]
+}

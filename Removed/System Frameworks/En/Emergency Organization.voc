@@ -1,0 +1,30 @@
+suicide prevention center
+    suicide prevention ; utterances like "call suicide prevention" should recognize suicide prevention as a resource
+    {national} suicide {prevention} {crisis} (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})
+    {national} suicide {prevention} (service{s}|cent{er|re}{s}|facilit(y|ies)|org{ani{z|s}ation{s}}|agenc(ies|y))
+    (VA|veteran{'}s) {affairs} crisis (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})
+    (VA|veteran{'}s) {affairs} crisis (service{s}|cent{er|re}{s}|facilit(y|ies)|org{ani{z|s}ation{s}}|agenc(ies|y))
+    {the} lifeline {australia|new zealand} ;
+    crisis (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})[tag=ambiguousEmergency]
+    suicide (counsel{l}or|number)[tag=ambiguousEmergency]
+
+sexual assault crisis center
+    sex{ual} assault [exists;node=emergencyVerb;category="call";constraint=before] ; call sexual assault <rdar://problem/43594139>
+    sex{ual} assault [exists;node=emergencyAttribute;constraint=adjAfter] ; sexual assault helpline
+    (sex{ual}|national) assault {crisis} (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})
+    (sex{ual}|national) assault {crisis} (service{s}|cent{er|re}{s}|facilit(y|ies)|org{ani{z|s}ation{s}}|agenc(ies|y))
+    (RAINN|Rape, Abuse & Incest National Network)
+    (rape|incest|abuse|assault) (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})[tag=ambiguousEmergency]
+
+poison control center
+    {national} poison {control} center{s}
+    American Association of Poison Control {Center{s}}
+    AAPCC
+    poison control {hotline}
+    poison hotline
+
+domestic violence hotline
+    {national} (family|domestic|spous(e|al)) (abuse|violence|assault) (line|support|help|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s}) [conf=vh]
+    {national} (family|domestic|spous(e|al)) (abuse|violence|assault) {help} (service{s}|cent{er|re}{s}|facilit(y|ies)|org{ani{z|s}ation{s}}|agenc(ies|y)|shelter{s}|site|people) [conf=vh]
+    the hotline
+    (abuse|assault) (line|hot{-| }line{s}|help{-| }line{s}|life{-| }line{s}|support{-| }line{s}|{phone} number{s})

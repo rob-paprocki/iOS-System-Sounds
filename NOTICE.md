@@ -4,9 +4,10 @@ This repository contains two distinct kinds of material, under two distinct term
 
 ## Audio files: Apple Inc.'s copyright
 
-Everything under `Source/`, and the WAV mirror distributed via
-[Releases](../../releases), consists of audio assets extracted from Apple's iOS 26
-IPSW (build `23G83`). These files are **Apple Inc.'s copyrighted work**. They are
+Everything under `Current/`, `Removed/` and `Spoken Content/`, and the WAV mirror
+distributed via [Releases](../../releases), consists of audio assets extracted from
+129 Apple iOS IPSWs spanning iOS 1.0 (2007) to iOS 26.6.1 (build `23G83`). These
+files are **Apple Inc.'s copyrighted work**. They are
 not covered by the MIT licence in [LICENSE](LICENSE), and no licence to them is
 granted or implied by this repository.
 
@@ -22,6 +23,6 @@ and it will be removed.
 
 ## Everything else: MIT
 
-The scripts in `tools/`, the generated index files `sounds.json` and
-`_manifest.csv`, and all documentation are original work released under the MIT
-licence. See [LICENSE](LICENSE).
+The scripts in `tools/`, the generated index files `sounds.json` and `sounds.csv`,
+the release research under `research/`, and all documentation are original work
+released under the MIT licence. See [LICENSE](LICENSE).

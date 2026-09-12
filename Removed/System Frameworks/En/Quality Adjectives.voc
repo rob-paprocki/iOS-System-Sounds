@@ -1,0 +1,40 @@
+#SUBSTITUTION
+
+POSITIVE_ADJECTIVE
+    awesome
+    bad{-| }ass
+    best
+    cool
+    decent
+    excellent
+    exceptional
+    exemplary
+    fantastic
+    good
+    kick{-| }ass
+    magnificent
+    nice
+    outstanding
+    preferred
+    super
+    terrific
+    top-notch
+    top-rated
+    well-liked
+
+NEGATIVE_ADJECTIVE
+    abominable
+    atrocious
+    awful
+    bad
+    crappy
+    horrible
+    inferior
+    lousy
+    shit{ty}
+    shoddy
+    terrible
+    unpopular
+    worst
+
+#DICT

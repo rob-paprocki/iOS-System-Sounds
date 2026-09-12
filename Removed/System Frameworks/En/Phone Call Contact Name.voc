@@ -1,0 +1,18 @@
+emergency services [saliency=high;type=constraint][infers;node=phoneCallVerb;category=call][infers;node=phoneCallContactRole;category=to]
+    Emergency Services [d][useSynonym=false]
+    emergency {assistance} {service{s}} {hotline} {number}
+    emergencies
+    {the|a} hospital
+    {the} (police|cops)
+    {the} fire department
+    {the} (fireman|firemen)
+    {an{d}|the} ambulance
+    {the} paramedic{s}
+    poison control {center{s}}
+    {the} (fire|ambulance{s}|paramedic{s}|medic{s}|medical|police|law enforcement|cop{s}|poison control) service{s}
+
+emergency contact
+    emergency contact [d]
+    {my} emergency{-| }contact{s}
+    {my} contact{s} for emergenc(y|ies)
+    my emergency {contact{'s}} {phone }number

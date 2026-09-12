@@ -1,0 +1,110 @@
+mobile phone
+	(mobile|cell) {{tele}phone} {no|number} {for|of}
+	mobile [d]
+    mobile phone [conf=high]
+    
+iphone
+	i{ |-}phone {no|number} {for|of}
+	iPhone [d]
+
+work phone
+	(company|job|work|business|office {mobile}) {tele}phone {no|number} {for|of} [conf=high]
+	(company|job|work|business|office {mobile}) (no|number) {for|of} [conf=high]
+	{{tele}phone} (no|number) at {the} (company|job|work|business|office) [conf=high]
+	(company|job|work|business|office {mobile}) [conf=med][saliency=low]
+	work [d]
+
+home phone
+	(house|home) {tele}phone {no|number} {for|of} [conf=high]
+	(house|home) (no|number) {for|of} [conf=high]
+	{{tele}phone} (no|number) at ({the} house|home) [conf=high]
+	house [conf=med][saliency=low]
+	home  [d][conf=med][saliency=low]
+
+main phone
+    main {tele}phone {no|number} [conf=high]
+    main (no|number)
+
+home fax
+    home fax [d][conf=high]
+    home fax (no|number) [conf=high]
+    fax (no|number) {at home}
+    fax {at home} [conf=med][saliency=low]
+
+work fax
+    work fax [d][conf=high]
+    work fax (no|number) [conf=high]
+    fax {no|number} (at work|at the office|in the office)
+
+other fax
+    other fax [d][conf=high]
+    other fax (no|number) [conf=high]
+
+pager
+    pager [d] [conf=high]
+    pager (no|number) [conf=high]
+
+other phone
+    other {phone} {no|number} [conf=vh][exists;node="phoneCallContact,contactType";constraint=promptTarget][exists;node="phoneCallContact";constraint=before]
+    other {tele}phone {no|number} [conf=high]
+    other (no|number)
+    other phone [d][conf=low]
+    other
+
+assistant phone
+    assistant {main} {tele}phone {no|number} [conf=high]
+    assistant {main} (no|number)
+    assistant main
+    assistant [d]
+
+car phone
+    car {tele}phone {no|number} [conf=high]
+    car (no|number)
+    car [d]
+
+radio phone
+    radio {tele}phone {no|number} [conf=high]
+    radio (no|number)
+    radio [d][conf=med][saliency=low]
+
+company main phone
+    company main {tele}phone {no|number} [conf=high]
+    company main (no|number)
+    company main [d]
+
+    ; exchange labels
+primary phone
+    primary {tele}phone {no|number} [conf=high]
+    primary (no|number)
+    primary [d][conf=med][saliency=low]
+
+alternate work phone
+    alternate work {tele}phone {no|number} [conf=high]
+    alternate work (no|number)
+    alternate work [d][conf=med][saliency=low]
+
+alternate home phone
+    alternate home {tele}phone {no|number} [conf=high]
+    alternate home (no|number)
+    alternate home [d][conf=med][saliency=low]
+
+callback phone
+    callback {tele}phone {no|number} [conf=high]
+    callback (no|number)
+    callback [d][exists;node=contactType;constraint=promptTarget]
+
+isdn phone
+    isdn {tele}phone {no|number} [conf=high]
+    isdn (no|number)
+    ISDN [d][conf=med][saliency=low]
+
+tdd tty phone
+    tdd tty {tele}phone {no|number} [conf=high]
+    tdd tty (no|number)
+    TDD/TTY [d][conf=med][saliency=low]
+
+phone
+    {the} phone {number} [exists;node="contactType,emailType";constraint="promptTarget"][notExists="other";constraint=adjBefore][saliency=high]
+    {the} phone {number} [exists="her,his";constraint="adjBefore"][saliency=high]
+    {the} phone {number} [exists;node=person;constraint="adjBefore"][exists="to";constraint="before"][notExists="reply";constraint="before"][saliency=high]
+    {the} phone number

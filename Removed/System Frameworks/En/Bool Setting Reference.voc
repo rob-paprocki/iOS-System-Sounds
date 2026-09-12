@@ -1,0 +1,7 @@
+;The English referenceValidator currently checks to make sure reference always follows the verb
+;#INCLUDE ../../shared/en/reference.inc
+
+;#INCLUDE ../../shared/en/reference-many.inc
+#INCLUDE ../../shared/en/reference-one.inc
+#INCLUDE ../../shared/en/reference-the.inc
+;#INCLUDE ../../shared/en/reference-these.inc

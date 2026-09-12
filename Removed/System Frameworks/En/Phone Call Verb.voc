@@ -1,0 +1,131 @@
+#SUBSTITUTION
+
+SETUP
+    set{ }up
+    make
+
+SHOW
+    {(show|tell) {me}}
+
+#DICT
+
+#INCLUDE ../../shared/en/canonicalFind.inc [exists;node="phoneCallNoun,voiceMailNoun";constraint=after]
+#INCLUDE ../../shared/en/read.inc
+
+
+find
+    do i have any [exists;node=phoneCallNoun;category=calls;constraint=adjAfter][exists;node=phoneCallNoun;category=calls;constraint=end][infers;node=phoneCallAttributes;category=missed]
+    (did|do) i (get|have|receive)
+    have i (got|received|had)
+    (was|were) there
+
+    ;<rdar://problem/9870633> NL fail: when did john call
+    ${SHOW} {when} did
+    ${SHOW} when was
+    ${SHOW} who was [exists;node=phoneCallNoun;constraint=after][infers;node=phoneCallAttributes;category=received]
+    ${SHOW} who{'s| is} [exists;node=phoneCallNoun;constraint=after]
+
+    ;<rdar://problem/25339468> [en] "How many missed calls do I have today" to recognised
+    ${SHOW} how many [conf=high]
+    ${SHOW} what
+
+;;;;;;;;;;;;;;;;;;;;;;;
+; Note: check AU/GB LOCALIZATION for any synonym / metadata updates
+;;;;;;;;;;;;;;;;;;;;;;;
+
+call
+    ;<rdar://problem/14671505> Support follow-up utterance 'call' after doing a Siri contact card search
+    call [d][exists;constraint=start][exists;constraint=end][exists;node=contactVerb;category="find,who,where is";constraint=previousState][infers;node=phoneCallContactReference;category="one"]
+    no{,|.} (call|phone)[saliency=high;type=definition][conf=vh][exists;constraint=start][exists;node="phoneCallContactName,person";constraint=adjAfter][exists;node=phoneCallConfirmation;constraint=strictPrompt]
+    ;call home
+    ;call david
+    ;call voicemail
+    ;call that number
+    ;call blah
+    ;(where "blah" is picked as a phoneCallContactName by variable matching)
+    (call{ing}|dial|{tele}phon(e|ing)) [saliency=high] [exists;constraint=start][notExists="again,back,missed";constraint=after] [notExists="if,when,you";constraint="adjAfter"] [notExists="don't,didn't,do not,did not,don't want to,didn't want to,do not want to,did not want to";constraint=adjBefore]
+    ;remind me to call blah
+    (call|dial|{tele}phone) [saliency=high] [exists;node=reminderVerb;category="remind,remember";constraint=before][notExists="again,back,missed";constraint=after] [notExists="if,when,you";constraint="adjAfter"]
+    ;match "call" for: "go ahead and call bob" but don't match for: "john's last call"
+    (call|dial|{tele}phone) [notExists;node=phoneCallAttributes;constraint=before][notExists="don't,do not,do you";constraint=adjBefore][notExists="again,back,missed";constraint=after] [notExists="if,when,you";constraint="adjAfter"]
+
+    {I'd|I would} like to talk [saliency=high]
+    {I} (want|need|have) to talk [saliency=high]
+    dial {a} number [exists;constraint=start][exists;constraint=end][saliency=high]
+
+    ${SETUP} {a} {{tele}phone} call {with} [saliency=high]
+    give [exists;node=phoneCallNoun;category="call,calls"]
+
+    connect {me} {to} [exists;constraint=start][exists;node=person;constraint=adjAfter]
+    connect {me} {to} [exists;constraint=start][exists;node=phoneCallContactName;constraint=adjAfter]
+    connect {me} {to} [exists;constraint=start][exists;node=phoneCallContactReference;constraint=adjAfter]
+
+    (place|make)
+    start
+
+    ;ring home
+    ;ring david
+    ;ring voicemail
+    ;ring that number
+    ;ring blah
+    ;(where "blah" is picked as a phoneCallContactName by variable matching)
+    ;ring cases also apply for "contact"
+    (ring|contact) [saliency=high] [exists;constraint=start]
+    ;remind me to ring blah
+    (ring|contact) [saliency=high] [exists;node=reminderVerb;category="remind,remember";constraint=before]
+    ;match "call" for: "go ahead and call bob" but don't match for: "john's last call"
+    (ring|contact) [notExists;node=phoneCallAttributes;constraint=before][notExists="don't,do not";constraint=adjBefore]
+
+    emergency call [exists;constraint=start][exists;constraint=end][infers;node="phoneCallContactName";category="emergency services"][conf=vh]
+    ; speech recognition issue
+    all [exists;node=person;constraint=adjAfter][exists;node=person;constraint=end][conf=low]
+
+    phone call [exists;node=phoneCall;constraint=domainHint][exists;constraint=start][exists;constraint=end]
+
+call back [saliency=high]
+    (call|dial|phone) back [exists;constraint=start][exists;constraint=end][infers;node=phoneCallContactReference;category=one]
+    (call|dial|phone) back [exists;node=phoneCallContactReference;constraint=adjAfter][conf=vh]
+    (call|dial|phone) back
+    call back [d]
+    reply|answer [exists;node=phoneCall;constraint=domainHint]
+    (call|dial|phone) {back} the last (caller|person that (called|phoned|rang) {me})
+    (call|dial|{tele}phone) (him|her|them) back [infers;node=phoneCallContactReference;category=one]
+    (call|dial|{tele}phone) [exists;node=person;constraint=adjAfter][exists="back";constraint=after]
+    (call|dial|phone) {my|the} [exists;node=phoneCallAttributes;category=missed;constraint=adjAfter][exists;node=phoneCallNoun;constraint=after]
+    (call|dial|phone) {my|the} [exists;node=phoneCallNoun;constraint=adjAfter][exists;node=phoneCallAttributes;category=missed;constraint=after]
+    return [exists;node=phoneCallNoun;constraint=after]
+    facetime back [exists;constraint=start][exists;constraint=end][infers;node=phoneCallContactReference;category=one][infers;node=phoneCallNoun;category=facetime]
+    facetime back [infers;node=phoneCallNoun;category=facetime]
+    facetime (him|her|them) back [infers;node=phoneCallContactReference;category=one][infers;node=phoneCallNoun;category=facetime]
+    facetime [exists;node=person;constraint=adjAfter][exists="back";constraint=after][infers;node=phoneCallNoun;category=facetime]
+    facetime audio back [exists;constraint=start][exists;constraint=end][infers;node=phoneCallContactReference;category=one][infers;node=phoneCallNoun;category="facetime audio"]
+    facetime audio back [infers;node=phoneCallNoun;category="facetime audio"]
+    facetime audio (him|her|them) back [infers;node=phoneCallContactReference;category=one][infers;node=phoneCallNoun;category="facetime audio"]
+    facetime audio [exists;node=person;constraint=adjAfter][exists="back";constraint=after][infers;node=phoneCallNoun;category="facetime audio"]
+
+
+redial [saliency=high]
+    re{-| }dial
+    redial [d]
+    try again [exists;node=phoneCall;constraint=domainHint]
+    {try} (call{ing}|dial|phon(e|ing)) again
+    {try} (call{ing}|dial|phon(e|ing)) [exists;node=person;constraint=adjAfter][exists="again";constraint=after]
+    {try} (call{ing}|dial|phon(e|ing)) (him|her|them) again [infers;node=phoneCallContactReference;category=one;constraint=adjAfter]
+    (call|dial|{tele}phone) [exists;node=person;constraint=adjAfter][exists="again";constraint=after][saliency=high][exists;node=reminderVerb;category="remind,remember";constraint=before]
+    (call|redial|phone) the last number {that} I (called|dialed|phoned)
+    (ring|contact) (her|him) (back {again}|again)
+
+facetime
+    {${SETUP}} {a|some} face{ }time {call} {with} [saliency=high][notExists=audio;constraint=adjAfter]
+    {${SETUP}} {a|some} video( call| chat|{ |-}conference) {with} [saliency=high][notExists=audio;constraint=adjAfter]
+    facetime[d][useSynonym=false]
+facetime audio
+    {${SETUP}} {a|an} face{ }time audio {call} {with} [saliency=high]
+    {${SETUP}} {a|an} audio face{ }time {call} {with} [saliency=high]
+    {${SETUP}} {a|an} (voice|audio){{ |-}only} face{ }time {call} {with} [saliency=high]
+    {${SETUP}} {a|an} (voice|audio){{ |-}only} {call} {with} [exists;node=phoneCallNoun;category="facetime audio";constraint=end] [saliency=high]
+    facetime audio [d][useSynonym=false]
+speakerphone [infers;node="phoneCallAudioRoute";category="speakerphone"]
+    {${SETUP}} {a|some} speaker{phone} {call} {with} [saliency=high]
+    speaker phone call [d][useSynonym=false]
+clarify [d][useSynonym=false]

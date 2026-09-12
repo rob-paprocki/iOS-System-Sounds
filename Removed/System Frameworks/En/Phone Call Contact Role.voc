@@ -1,0 +1,51 @@
+#SUBSTITUTION
+
+FIND
+    (show {me}|find {me}|view|display|{when} did|list {me})
+
+#DICT
+
+;use low confidence so that the soft conflict target (noun and verb) won't be dropped
+to [conf=low]
+    to  [conf=def] [notExists;node=reminderLocationTiming;constraint=adjBefore]
+    ;e.g. call john
+    telephone|call{ing} [notExists="history";constraint=adjAfter]
+
+    ;e.g. "call the wife"
+    with {our|the}
+    our|the
+
+    all [exists;node=phoneCallVerb;category=call]
+    for [exists;node=phoneCallVerb;category=call]
+
+    phone {with} {our|the} [notExists;node=contactType;constraint=adjBefore]
+    ({re}dial|call back|phone back) {our|the}
+    face{ }time {call} {with} {our|the} [notExists="audio"]
+    face{ }time audio {call} {with} {our|the} [notExists;constraint=end]
+    audio face{ }time {call} {with} {our|the}
+    video( call| chat|{ |-}conference) {with} {our|the}
+    speaker{phone} {call} {with} {our|the} [infers;node="phoneCallAudioRoute";category="speakerphone"]
+    set{ }up {a} {{tele}phone} call with {our|the}
+    (give|return|make|place) {a{n}} [exists;node="phoneCallNoun";constraint=after]
+    me [exists;node=person;constraint=adjAfter][exists;node=phoneCallVerb;category=call;constraint=adjBefore]
+    me [exists;node=phoneCallContactName;category="emergency services";constraint=adjAfter][exists;node=phoneCallVerb;category=call;constraint=adjBefore]
+
+    ring
+    contact
+    (telephone|phone|call|dial) (for|with) [conf=ml][notExists="history";constraint=adjAfter]
+
+from
+    from [exists;node=phoneCallVerb;category=find;constraint=start][exists;node=phoneCallNoun][saliency=high][conf=vh]
+    {do I have} (from|by) {our}
+    play [exists;node=person;constraint=adjAfter][exists;node=voiceMailNoun;category=voicemail;constraint=after][infers;node=voiceMailVerb;category=play]
+    ;<rdar://problem/9870633> NL fail: when did john call
+    ${FIND} [notExists;node=phoneCallReference;constraint=adjAfter][notExists;node=phoneCallAttributes;constraint=adjAfter][notExists="all";constraint=adjAfter][exists;node=phoneCallNoun]
+
+replace [conf=little][exists;node=phoneCall;constraint=domainHint]
+    make that
+    change that {to}
+
+remove [notExists="say";constraint="adjBefore"][exists;node=phoneCall;constraint=domainHint]
+    not [conf=little]
+    remove
+    delete

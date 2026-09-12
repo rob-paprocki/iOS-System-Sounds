@@ -1,0 +1,61 @@
+call
+    ;{{一}个}(电话|来电) [saliency=high][notExists;node=contactVerb;category=find] [notExists;node=cannedVerb;category=whenis][notExists;node=calendarEventVerb;category=whenis]
+    ({打{来}的}电话|来电)[saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before] [notExists;node="localSearchBusinessName"]
+    ;{a|an} {{tele}phone} call [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't";constraint=adjBefore]
+    ;{a|an} {{tele}phone} call [saliency=low][notExists="don't";constraint=adjBefore]
+
+    ;我妈妈什么时候打给我的
+    ;我妈妈有打给我吗
+    (打({电话}给我|{电话}{过}来)|来电){的} [exists;node=phoneCallContactRole;category=from;constraint=adjBefore][infers;node=phoneCallAttributes;category=received]
+
+    ;谁刚打来/刚刚谁打来
+    (打({电话}给我|{电话}{过}来)|来电)|(刚才|刚刚|刚){给我}打电话 [exists="谁,什么人,有没,有没有,有";constraint=before][infers;node=phoneCallAttributes;category=received]
+
+    ;; using small confidence to allow reminders to pick "show my call reminders" <rdar://problem/10042972>
+    ;my {{tele}phone} call [saliency=high][conf=small] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+
+    ;<rdar://problem/27796631> [zh_CN][NL][14A335-10B402] phone call domain needs more training (start video/audio call on WeChat)
+    音频{电话|通话|聊天}
+
+
+calls
+    (通话|电话)(纪|记)录 [saliency=high][conf=high]
+    最近通话 [saliency=high]
+
+    ;(电话|来电)[saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before]
+    ;{all {the}|every|any} {{tele}phone} call{'}s [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before]
+    ;{all {the}|every|any} {{tele}phone} call{'}s [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore]
+    ;{all {the}|every|any} {{tele}phone} call{'}s [saliency=low]
+    ;(every|any) {{tele}phone} call [saliency=high]
+    ;(every|any) {{tele}phone} call [saliency=high]
+    ;(every|any) {{tele}phone} call [saliency=low]
+    ;my {{tele}phone} calls [saliency=high] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+    ;
+
+facetime
+    face{ }time{电话} [saliency=high][notExists="音频,语音";constraint=adjacent]
+    (可视|面对面)(电话|通话|聊天)
+    视频{电话|通话|聊天}
+;    {a|an} facetime {call{s}} [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,do not";constraint=adjBefore]
+;    {a|an} facetime {call{s}} [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not";constraint=adjBefore]
+;    {a|an} facetime {call{s}} [saliency=low][notExists="don't,do not";constraint=adjBefore]
+;    ; when was my FaceTime call from john
+;    my facetime {call{s}} [saliency=high][conf=small] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+
+facetime audio
+    face{ }time{ }(音频|语音){{的}电话} [saliency=high]
+    (音频|语音){的}face{ }time{电话} [saliency=high]
+;    {a|an} facetime audio {call{s}} [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,do not";constraint=adjBefore]
+;    {a|an} facetime audio {call{s}} [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not";constraint=adjBefore]
+;    {a|an} facetime audio {call{s}} [saliency=low][notExists="don't,do not";constraint=adjBefore]
+;    ; when was my FaceTime call from john
+;    my facetime audio {call{s}} [saliency=high][conf=small] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+
+speakerphone
+	{在|用|使用}(扬声器|免提){上|上面} [exists;node="phoneCallVerb"]
+	
+not speakerphone
+    不{要}(用|使用)(扬声器|免提) [exists;node="phoneCallVerb"]
+    (扬声器|免提)关闭 [exists;node="phoneCallVerb"]
+    关闭(扬声器|免提) [exists;node="phoneCallVerb"]
+

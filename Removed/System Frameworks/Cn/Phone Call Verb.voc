@@ -1,0 +1,85 @@
+#INCLUDE ../../../shared/zh/cn/find.inc
+#INCLUDE ../../../shared/zh/cn/read.inc
+
+
+find
+    {我}(有|收到){了}{新的} [exists="吗,么,咩";constraint=end]
+    谁|什么人
+    什么时候|几点钟
+    多久(之|以)前
+
+call
+    拨{打|到|通|给} [saliency=high][conf=high]
+    接{通|到} [notExists="下来"][saliency=high][conf=high];接下来的一天
+    呼叫 [saliency=high][conf=high]
+    拨号 [saliency=high][conf=high]
+    致电 [saliency=high][conf=high]
+    请电 [saliency=high][conf=high]
+    call [saliency=high][exists;constraint=start]
+    ; 打电话给 is needed for reminder to connect phone call domain
+    打(到|给|通|电话|电话给) [saliency=high] [notExists;node=localSearchBusinessName]
+    打 [notExists;node=phoneCallVerb;category=facetime]
+    ;打电话给星巴克
+    通话 [saliency=high]
+    ;打过去 [saliency=high]
+    ; for fixing <rdar://problem/11604577> [CH][Mail] Incorrect command analyzation for reply email by calling sender.
+    通 [saliency=high][exists;node=phoneCallNoun;category=call]
+    {用}电话(回|答)复 [saliency=high]
+
+    ;<rdar://problem/13459847> [zh_CN][Phone][NL] Unsupport complete utterances '我要找<contact>' in second step when siri ask '你要找谁'.
+    找{{一}下} [exists;node=phoneCall;constraint=domainHint]
+    ; remove high saliency here from 找
+    ;<rdar://problem/14373408> [zh-CN][Encyclopedia][NL] Utterance '帮我找下温家宝' goes to local search for '温家宝'.
+
+    ;<rdar://problem/11254170> [Phone] CH:Sundance10A281: Siri don't understand the command '讲电话' or '煲电话粥' which also mean 'make a phone call' in spoken chinese.
+    讲电话 [saliency=high][conf=vh]
+    煲电话粥 [saliency=high][conf=vh]
+
+    ;<rdar://problem/11287893> [Phone] CH:Sundance10A281: Siri will recognize the utterance '我想和<contact name> 说话／讲电话' which means 'want to talk with <contact name>' incorrectly.
+    说话 [exists;constraint=end][exists="和,跟,找";constraint=before][exists;node=contact;constraint=before]
+
+    ;<rdar://problem/11307601> [Phone]? CH:Sundance10A291: Siri gives an incorrect respond for utterance '帮我电话联系一下XXX' .
+    电话 [exists;node="contact,phoneCallContactRole";constraint=adjAfter][conf=ml][notExists;node=localSearchBusinessName]
+    电话 [exists;node="phoneCallContactRole";constraint=before][conf=ml][notExists;node=localSearchBusinessName]           ;给xx电话
+
+    ;<rdar://problem/12727264> [CH][Phone] Saying '电话' returns '查看通话记录'(check call history) unexpectedly.
+    电话 [exists;constraint=start][exists;constraint=end][saliency=high]
+    拨打电话号码 [exists;constraint=start][exists;constraint=end]       ;<rdar://problem/12861537> [CH][Phone] local business search matching "拨打" using utterance '拨打电话号码'(make a phone call)
+    打{一}{通|个}电话
+    不{，|。}(呼叫|打给|致电)[saliency=high;type=definition][conf=vh][exists;constraint=start][exists;node="phoneCallContactName,person";constraint=adjAfter][exists;node=phoneCallConfirmation;constraint=strictPrompt]
+
+    ;<rdar://problem/27796631> [zh_CN][NL][14A335-10B402] phone call domain needs more training (start video/audio call on WeChat)
+    音频{电话|通话|聊天}
+
+
+call back [saliency=high]
+    (回|拨|打){电话}(回|过)去
+    打回给
+    打 [exists="回去";constraint=after][exists;node=contact]
+    打 [exists="回去";constraint=after][exists;node=phoneCallNoun;category=call][conf=high]
+    回{复} [exists;node=phoneCallNoun;constraint=after] [notExists=家;constraint=adjAfter]
+    回电 [conf=high]
+    回拨 [conf=high]
+    回{拨|复}{一}{通|个}电话
+
+redial [saliency=high][conf=high]
+    重{新}(拨{打}|打)
+    (再|重{新})(拨{打}|打|接{通}|呼{叫})一次
+    (拨{打}|打|接{通}|呼{叫}){过去} [exists="再,重,重新";constraint=before][conf=vh]
+
+facetime
+    {打|拨|拨打}{一}{通|个}(可视|视频|面对面)(电话|通话) [saliency=high][conf=vh]
+    face{ }time{{打|拨|拨打}{一}{通|个}电话} [saliency=high][conf=vh]
+    {打|拨|拨打}{一}{通|个}face{ }time{电话|通话} [saliency=high][conf=vh]
+    (可视|面对面)(电话|通话|聊天)
+    视频{电话|通话|聊天}
+
+facetime audio
+    face{ }time{打|拨|拨打}{一}{通|个}(音频|语音){{的}电话} [saliency=high][conf=vh]
+    {打|拨|拨打}{一}{通|个}face{ }time{的}(音频|语音){{的}电话} [saliency=high][conf=vh]
+    {打|拨|拨打}{一}{通|个}(音频|语音){的}face{ }time{电话|通话} [saliency=high][conf=vh]
+
+speakerphone
+    (打|拨|拨打){一}{通|个}(座机){的}(电话|通话) [saliency=high][conf=vh]
+
+clarify [useSynonym=false]

@@ -1,0 +1,51 @@
+#INCLUDE ../../../shared/zh/cn/emailCommon.inc
+
+personal email
+    (私人|个人|住宅|家庭){的}${EMAIL}{地址} [conf=high]
+    (私人|个人|住宅|家庭)[exists;node="emailType";constraint="promptTarget"]
+    {他|她}自己{的}${EMAIL}{地址}
+    住宅 [d][useSynonym=false]
+
+work email
+    (公司|工作|单位|办公|办公室|公家|公务|商用){的}${EMAIL}{地址} [conf=high]
+    (公司|工作|单位|办公|办公室|公家|公务|商用)[exists;node="emailType";constraint="promptTarget"]
+    工作 [d][useSynonym=false]
+
+other email
+    (其他|别){的}${EMAIL}{地址} [conf=high]
+    其他 [d][exists;node="emailType";constraint="promptTarget"]
+
+email one [conf=high]
+    电子邮件1 [d][useSynonym=false]
+    ${EMAIL}{ }(1|一){地址}
+
+email two [conf=high]
+    电子邮件2 [d][useSynonym=false]
+    ${EMAIL}{ }(2|二){地址}
+
+email three [conf=high]
+    电子邮件3 [d][useSynonym=false]
+    ${EMAIL}{ }(3|三){地址}
+
+messaging one [conf=high]
+    信息1 [d][useSynonym=false]
+    (信息|短信){ }(1|一){地址}
+
+messaging two [conf=high]
+    信息2 [d][useSynonym=false]
+    (信息|短信){ }(2|二){地址}
+
+messaging three [conf=high]
+    信息3 [d][useSynonym=false]
+    (信息|短信){ }(3|三){地址}
+
+email
+    ${EMAIL}{地址}[exists;node="contactType,emailType";constraint="promptTarget"][notExists;node=emailContactRole;constraint=before][saliency=high]
+    ${EMAIL}{地址}[exists="他的,她的";constraint="adjBefore"][saliency=high]
+    ${EMAIL}{地址}
+    ;{the} email {address} [exists;node="contactType,emailType";constraint="promptTarget"][saliency=high]
+    ;{the} email {address} [exists="her,his";constraint="adjBefore"][saliency=high]
+    ;;capture: "facetime using john's email"
+    ;;don't capture: "tell dan waters to email marco"
+    ;{the} email {address} [exists;node=person;constraint="adjBefore"][exists="to";constraint="before"][notExists="to";constraint="adjBefore"][notExists="reply";constraint="before"][saliency=high]
+    ;{the} email address

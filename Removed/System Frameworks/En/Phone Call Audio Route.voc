@@ -1,0 +1,28 @@
+#SUBSTITUTION
+
+SPEAKERPHONE
+    speaker{{ |-}phone}
+
+BLUETOOTH
+    blue{ |-}tooth {(head|ear){ |-}(set|phone|plug){s}}
+
+USING
+    (using|over|with|on|via|from)
+
+NOT
+    {but} (not|without)
+    {but} (do not|don't)
+
+#DICT
+
+speakerphone
+    ${USING} ${SPEAKERPHONE}
+
+not_speakerphone
+    ${NOT} ${USING} ${SPEAKERPHONE}
+
+bluetooth
+    ${USING} ${BLUETOOTH}
+
+not_bluetooth
+    ${NOT} ${USING} ${BLUETOOTH}

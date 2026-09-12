@@ -1,0 +1,3 @@
+#INCLUDE ../../../shared/zh/cn/contactReference.inc
+#INCLUDE ../../../shared/zh/cn/anyContactReference.inc [exists;node=phoneCallContact;constraint=promptTarget]
+#INCLUDE ../../../shared/zh/cn/handsfreeReference.inc  [exists;node=phoneCallContactReference;constraint=promptTarget]

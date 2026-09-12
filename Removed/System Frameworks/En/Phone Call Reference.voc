@@ -1,0 +1,8 @@
+#INCLUDE ../../shared/en/reference-many.inc
+#INCLUDE ../../shared/en/reference-one.inc
+#INCLUDE ../../shared/en/reference-the.inc [exists;node=phoneCallNoun;constraint=adjAfter]
+#INCLUDE ../../shared/en/reference-these.inc [exists;node=phoneCallNoun;constraint=adjAfter]
+
+one
+    (the|that) number
+    the one

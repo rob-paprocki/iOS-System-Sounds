@@ -1,0 +1,10 @@
+;Vanilla file, used for semantic tokens validation
+;Include ordinal reference in this root voc.
+#INCLUDE ../shared/handsfreeReference.inc
+one     [tag="personReference"][tag="indefiniteReference"]
+many    [tag="personReference"][tag="indefiniteReference"]
+he      [tag="personReference"]
+she     [tag="personReference"]
+my
+any
+other

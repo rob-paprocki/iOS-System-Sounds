@@ -1,0 +1,24 @@
+suicide prevention center
+    自杀防治中心 [d;measure="所"]
+    自杀{心理}{协助|防治|防止|关心|预防|治疗|干预|防御}(热线|专线|中心|组织)
+    自杀{心理}(协助|防治|防止|关心|预防|治疗)
+    (防治|防止|关心|关怀|预防)自杀(热线|专线|中心|组织|会)
+    生命{{关心|关怀}(专|热)}线
+    (防|防止|预防)自杀 [exists;node=emergencyAttribute;category="phone number";constraint=after]
+
+
+sexual assault crisis center
+    性(骚扰|侵犯) [exists;node=emergencyVerb;category=call;constraint=before]
+    性(骚扰|侵犯) [exists;node=emergencyAttribute;constraint=adjAfter]
+    性(骚扰|侵犯){心理}{协助|防治|防止|关心|关怀|预防|治疗|干预|防御}(热线|专线|中心|组织|机构|会)
+    (防治|防止|关心|关怀|预防|治疗)性(骚扰|侵犯)(热线|专线|中心|组织|机构|会)
+    (强奸|乱伦|性侵)(防治|防止|关心|关怀|预防|治疗|干预|防御)(热线|专线|中心|组织|机构|会|电话|网站)
+    {预}(防性侵|防性暴力){网站|热线|电话}
+
+
+domestic violence hotline
+    {全国|12338}妇女维权{公益}{服务}{热线|电话|热线电话}
+    {全国|12338}{反|防}家暴{公益}{服务}{热线|电话|热线电话}
+    (家庭暴力|家暴)防治{中心|热线}
+poison control center
+    (中毒|毒物)控制{中心}

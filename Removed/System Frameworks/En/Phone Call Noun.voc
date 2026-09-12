@@ -1,0 +1,67 @@
+#SUBSTITUTION
+ON
+    (a|an|on|with|using)
+    
+CALLS_CHATS
+    (call|chat){s}
+    
+#DICT
+
+call [notExists="facetime, facetime audio";constraint=after]
+    ({a|an} {{tele}phone} call|phone) [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,didn't,do not,did not,don't want to,didn't want to,do not want to,did not want to,do you";constraint=adjBefore] [notExists="if,when,you";constraint="adjAfter"]
+    ({a|an} {{tele}phone} call|phone) [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not,do you";constraint=adjBefore] [notExists="if,when,you";constraint="adjAfter"]
+    ({a|an} {{tele}phone} call|phone) [saliency=low][notExists="don't,do not,do you";constraint=adjBefore] [notExists="if,when,you";constraint="adjAfter"]
+    ; when was my call from john
+    ; using small confidence to allow reminders to pick "show my call reminders" <rdar://problem/10042972>
+    my {{tele}phone} call [saliency=high][conf=small] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+    a (bell|buzz|ring) [exists;node="person,phoneCallVerb"]
+    (called|rang|calling|phoned|phoning) {me} [exists="who";constraint=before][exists;constraint=end][infers;node=phoneCallAttributes;category=received]
+    (called|rang|calling|phoned|phoning) [exists="who";constraint=before]
+    was that [exists="who";constraint=adjBefore][exists;constraint=end][infers;node=phoneCallAttributes;category=last]
+    {{tele}phone} call history
+    (caller|person that called|person that phoned)[exists="who";constraint=before][exists;constraint=end]
+    person {that} I (called|phoned)[exists="who,who's";constraint=before][exists;constraint=end][infers;node=phoneCallAttributes;category=outgoing]
+    (call{er}|number) [exists;node=phoneCallAttributes;category=missed;constraint=adjBefore]
+    (call{er}|number) [exists;node=phoneCallAttributes;category=missed;constraint=after]
+    (talk|chat|speak)
+    {a|an} audio call
+
+calls
+    {all {the}|every|any} {{tele}phone} call{'}s [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before]
+    {all {the}|every|any} {{tele}phone} call{'}s [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore]
+    {all {the}|every|any} {{tele}phone} call{'}s [saliency=low]
+    (every|any) {{tele}phone} call [saliency=high]
+    (every|any) {{tele}phone} call [saliency=high]
+    (every|any) {{tele}phone} call [saliency=low]
+    my {{tele}phone} calls [saliency=high] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+    {my} {{tele}phone} call history [saliency=high]
+    (have|did) I call{ed} [saliency=high] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+
+facetime
+    {${ON}} facetime {{video} ${CALLS_CHATS}} [saliency=high][notExists=audio;constraint=adjAfter][notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} facetime {{video} ${CALLS_CHATS}} [saliency=high][notExists=audio;constraint=adjAfter][exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} facetime {{video} ${CALLS_CHATS}} [saliency=low][notExists=audio;constraint=adjAfter][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} video ${CALLS_CHATS} [saliency=high][notExists=audio;constraint=adjAfter][notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} video ${CALLS_CHATS} [saliency=high][notExists=audio;constraint=adjAfter][exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} video ${CALLS_CHATS} [saliency=low][notExists=audio;constraint=adjAfter][notExists="don't,do not,do you";constraint=adjBefore]
+    
+    ; when was my FaceTime call from john
+    my facetime {call{s}} {history} [saliency=high][conf=small][notExists=audio;constraint=adjAfter][exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+
+facetime audio
+    {${ON}} facetime audio {call{s}} [saliency=high] [notExists;node=cannedVerb;category=whenis;constraint=before][notExists;node=calendarEventVerb;category=whenis;constraint=before][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} facetime audio {call{s}} [saliency=high] [exists;node="person,phoneCallAttributes";constraint=adjBefore][notExists="don't,do not,do you";constraint=adjBefore]
+    {${ON}} facetime audio {call{s}} [saliency=low][notExists="don't,do not,do you";constraint=adjBefore]
+    ; when was my FaceTime call from john
+    my facetime audio {call{s}} {history} [saliency=high][conf=small] [exists;node="phoneCallVerb";category=find;constraint=adjBefore]
+    in facetime [exists;node=phoneCallVerb;category="facetime audio";constraint=start]
+
+speakerphone [infers;node="phoneCallAudioRoute";category="speakerphone"]
+	{${ON}} (speaker{ }{phone}|loudspeaker) [exists;node="phoneCallVerb"]
+
+not speakerphone [infers;node="phoneCallAudioRoute";category="not_speakerphone"]
+    (without|no|{and} (do not|don't) use|not using) (speaker{ }{phone}|loudspeaker) [exists;node="phoneCallVerb"]
+    {with} (speaker{ }{phone}|loudspeaker) (disabled|inactive|deactivated|{turned} off) [exists;node="phoneCallVerb"]
+
+emergency
+    emergency service{s}[infers;node=phoneCallVerb;category=call]

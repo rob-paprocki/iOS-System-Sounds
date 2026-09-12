@@ -1,0 +1,15 @@
+emergency services
+    紧急电话 [d][useSynonym=false]
+    {叫}紧急{(求|救)助}(电话|服务) [exists;constraint=end][saliency=high;type=constraint][infers;node=phoneCallVerb;category=call][infers;node=phoneCallContactRole;category=to]
+    {叫}紧急{(求|救)助}(电话|服务)
+    {叫}(紧急|求救|急救)电话 [exists;constraint=end][saliency=high;type=constraint][infers;node=phoneCallVerb;category=call][infers;node=phoneCallContactRole;category=to]
+    {叫}(紧急|求救|急救)电话
+    紧急呼叫 [exists;constraint=end][saliency=high;type=constraint][infers;node=phoneCallVerb;category=call][infers;node=phoneCallContactRole;category=to]
+    紧急呼叫
+    求救
+    紧急
+    急救
+
+
+    (火警|匪警|警察局|派出所|警察|消防局|消防车|消防站|消防员|救护车|救护车服务中心){电话} [exists;node=phoneCallVerb;category=call;constraint=adjBefore][exists;constraint=end][saliency=high;type=constraint]
+    (火警|匪警|警察局|派出所|警察|消防局|消防车|消防站|消防员|救护车|救护车服务中心){电话} [exists;constraint=start][exists;constraint=end][saliency=high;type=constraint][infers;node=phoneCallVerb;category=call][infers;node=phoneCallContactRole;category=to]

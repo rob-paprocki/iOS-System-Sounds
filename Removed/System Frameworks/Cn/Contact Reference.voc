@@ -1,0 +1,19 @@
+#INCLUDE ../../../shared/zh/cn/contactReference.inc
+#INCLUDE ../../../shared/zh/cn/handsfreeReference.inc [exists;node=contactReference;constraint=promptTarget]
+#INCLUDE ../../../shared/zh/cn/anyContactReference.inc [exists;node=contact;constraint=promptTarget]
+
+one
+    ;Simplified
+    这{个}(人|联络人|联系人|通讯地址|联络方式) [saliency=high]
+    此(人|联络人|联系人|通讯地址|联络方式) [saliency=high]
+    这个|那个
+
+my
+    ;Simplified
+    ;显示我的名片
+    我的  [notExists;node=personRelationship;constraint=adjAfter] ;to resolve ambitious on "我的儿子叫什么名字"
+    自己
+    {{就}是}我{自己}
+    {{就}是}俺
+    {{就}是}本人
+    {{就}是}鄙人

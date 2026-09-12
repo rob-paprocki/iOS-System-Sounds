@@ -1,0 +1,62 @@
+;;Left English strings that are commonly used
+personal email
+    個人 [d][useSynonym=false]
+    (屋企|住宅|私人|個人)(電郵地址|郵件|電郵|電子郵件|email)
+    個人電郵
+    自己
+    (屋企|住宅|私人|個人){電郵地址|郵件|電郵|電子郵件|email}
+    (home|personal) email {address{es}} {(for|of) {the}}  [conf=high]
+    (home|personal)
+    (home|personal) address [conf=med]
+    email {address{es}} at home
+    home
+
+
+work email
+    公司 [d][useSynonym=false]
+    (辦公室|寫字樓|公司)(電郵地址|郵件|電郵|電子郵件|email)
+    公司電郵
+    (辦公室|寫字樓|公司){電郵地址|郵件|電郵|電子郵件|email}
+    (work|business|job|company|office) email {address{es}} {(for|of) {the}} [conf=high]
+    (work|business|job|company|office)
+    (work{'s}|business{'s}|job|company{'s}|office{'s}) address [conf=med]
+    email {address{es}} (at work|at the office|in the office)
+	work
+
+
+other email
+    其他電郵 [d][useSynonym=false]
+    其他電郵
+    (其他|另外){嗰啲}{電郵地址|郵件|電郵|電子郵件|email}
+    other email [conf=high]
+    other
+
+email one [conf=high]
+    email 1 [d][useSynonym=false]
+;    email (1|one) {address}
+
+email two [conf=high]
+    email 2 [d][useSynonym=false]
+;    email (2|two) {address}
+
+email three [conf=high]
+    email 3 [d][useSynonym=false]
+;    email (3|three) {address}
+
+messaging one [conf=high]
+    messaging 1 [d][useSynonym=false]
+;    messaging (1|one) {address}
+
+messaging two [conf=high]
+    messaging 2 [d][useSynonym=false]
+;    messaging (2|two) {address}
+
+messaging three [conf=high]
+    messaging 3 [d][useSynonym=false]
+;    messaging (3|three) {address}
+
+email
+    (電郵地址|郵件|電郵|電子郵件|email) [exists;node="contactType,emailType";constraint="promptTarget"][saliency=high]
+    (電郵地址|郵件|電郵|電子郵件|email) [exists="her,his";constraint="adjBefore"][saliency=high]
+    (電郵地址|郵件|電郵|電子郵件|email) [exists;node=person;constraint="adjBefore"][exists="to";constraint="before"][notExists="reply";constraint="before"][saliency=high]
+    ;(電郵地址|郵件|電郵|電子郵件|email)

@@ -11,6 +11,7 @@ so it does not swamp the system sounds; its removal status lives in the index.
 import argparse
 import json
 import os
+import csv
 import shutil
 import sys
 
@@ -24,9 +25,25 @@ def main():
     ap.add_argument('--corpus', default='corpus.json')
     ap.add_argument('--store', default='_store')
     ap.add_argument('--out', default='.')
+    ap.add_argument('--matrix', default=os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                     'versions.json'))
     args = ap.parse_args()
 
     corpus = json.load(open(args.corpus))
+    # Durations come from tools/measure.py, not from the corpus: Chromaprint
+    # only reports one for material long enough to fingerprint, which most
+    # system sounds are not.
+    mpath = os.path.join(args.store, 'measure.json')
+    measured = json.load(open(mpath)) if os.path.exists(mpath) else {}
+    # Chronological rank is re-derived from the matrix every time. The matrix
+    # grows as more releases are added, so a rank stored at ingest time goes
+    # stale; the matrix is the single source of order.
+    if os.path.exists(args.matrix):
+        chrono = [v['build'] for v in json.load(open(args.matrix))['versions']]
+        for v in corpus['versions']:
+            if v['build'] in chrono:
+                v['order'] = chrono.index(v['build'])
+        json.dump(corpus, open(args.corpus, 'w'), indent=1)
     versions = sorted(corpus['versions'], key=lambda v: v['order'])
     order = {v['os']: v['order'] for v in versions}
     newest = versions[-1]['os']
@@ -76,7 +93,8 @@ def main():
             'versions': seen,
             'format': rep['ext'].lstrip('.'),
             'bytes': rep['bytes'],
-            'duration_sec': e.get('duration'),
+            'duration_sec': (measured.get(rep['md5'], {}).get('duration')
+                             or e.get('duration')),
             'original_filename': rep['original_name'],
             'ipsw_dir': rep['ipsw_dir'],
             'md5': rep['md5'],
@@ -84,6 +102,23 @@ def main():
                           'bytes': v['bytes'], 'versions': v['versions']}
                          for v in e['variants']],
         })
+
+    # A sound that was re-recorded rather than deleted shows up as two entries
+    # with the same category and title and different audio. Link them, so the
+    # index can say "replaced in iOS 7" instead of showing an unexplained
+    # removal next to an unexplained addition.
+    groups = {}
+    for d in index:
+        groups.setdefault((d['category'], d['title']), []).append(d)
+    for members in groups.values():
+        if len(members) < 2:
+            continue
+        members.sort(key=lambda d: order.get(d['introduced_in'], 0))
+        for i, d in enumerate(members):
+            d['rerecorded'] = True
+            d['rerecorded_with'] = [m['md5'] for m in members if m is not d]
+            if i + 1 < len(members):
+                d['replaced_by_in'] = members[i + 1]['introduced_in']
 
     index.sort(key=lambda d: d['file'])
     json.dump({'versions': versions,
@@ -94,11 +129,29 @@ def main():
                'sounds': index},
               open(os.path.join(args.out, 'sounds.json'), 'w'), indent=1, ensure_ascii=False)
 
+    # The same data as a spreadsheet, for people who are not going to parse
+    # JSON. One row per sound, one column per fact, releases as a list.
+    with open(os.path.join(args.out, 'sounds.csv'), 'w', newline='') as fh:
+        w = csv.writer(fh)
+        w.writerow(['file', 'title', 'category', 'status', 'introduced_in',
+                    'last_seen_in', 'releases', 'format', 'duration_sec',
+                    'bytes', 'original_filename', 'ipsw_dir', 'rerecorded', 'md5'])
+        for d in index:
+            w.writerow([d['file'], d['title'], d['category'], d['status'],
+                        d['introduced_in'], d['last_seen_in'],
+                        '; '.join(d['versions']), d['format'],
+                        d['duration_sec'] if d['duration_sec'] else '',
+                        d['bytes'], d['original_filename'], d['ipsw_dir'],
+                        'yes' if d.get('rerecorded') else '', d['md5']])
+
     print('versions: %s' % ', '.join(v['os'] for v in versions))
     for tree, n in counts.items():
         print('  %-16s %d files' % (tree + '/', n))
     print('  %d sounds total, %d no longer in %s'
           % (len(index), sum(1 for d in index if d['status'] == 'removed'), newest))
+    print('  %d with a measured duration, %d in a re-recorded set'
+          % (sum(1 for d in index if d.get('duration_sec')),
+             sum(1 for d in index if d.get('rerecorded'))))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,59 @@
+{
+ "note": "Builds worth extracting on top of one-per-minor-line and the launch builds. Derived from research/release-research.json, where every claim was fact-checked by an independent pass before it survived. Entries already covered by tier A or B are listed anyway, so this file records the whole finding; tools/plan.py ignores duplicates.",
+ "builds": [
+  {
+   "build": "8C148",
+   "version": "4.2.1",
+   "priority": "must-have",
+   "reason": "This release added 17 new SMS/text alert tones, nearly tripling the original set of six, and introduced per-contact text tones. It also has a numbering trap: the iPad release of this line is plain '4.2', but the iPhone/iPod touch build carrying the new tone files is 4.2.1 (8C148), so a naive 'one IPSW per major.minor' fetch keyed on '4.2' can pull the wrong image."
+  },
+  {
+   "build": "20A371",
+   "version": "16.0.1",
+   "priority": "must-have",
+   "reason": "20A371 is the build iPhone 14 shipped with out of the box; other devices got 16.0 (20A362). Two new audio surfaces debut on iPhone 14: Crash Detection's multi-stage emergency audio (alarm, repeated loud 'whoops' during the countdown, then a looped spoken emergency message played over the speakers) and the optional Power On & Off Sounds accessibility chime, which was iPhone 14-only at introduction."
+  },
+  {
+   "build": "17E8258",
+   "version": "13.4.1",
+   "priority": "nice-to-have",
+   "reason": "Confirmed device-exclusive build: only iPhone SE (2nd generation, iPhone12,8) received 17E8258; every other device got 17E262. No audio change is documented for it, but any SE-specific asset in that tree exists in no other image."
+  },
+  {
+   "build": "22D8063",
+   "version": "18.3",
+   "priority": "nice-to-have",
+   "reason": "iPhone 16e-exclusive build (iPhone17,5); general devices got 22D63. No documented audio change, but it is a cheap way to capture any 16e-specific asset. Flagged as needing re-confirmation against a definitive build table."
+  },
+  {
+   "build": "22D8075",
+   "version": "18.3.1",
+   "priority": "nice-to-have",
+   "reason": "Second iPhone 16e-exclusive build (general devices got 22D72). This 22D8075-vs-22D72 pair is the single most information-dense confirmed exclusive/general build pair found, and is the best candidate for a like-for-like device asset diff. Flagged as needing re-confirmation against a definitive build table."
+  },
+  {
+   "build": "14A403",
+   "version": "10.0.1",
+   "priority": "nice-to-have",
+   "reason": "Reported as the out-of-box build for iPhone 7 / 7 Plus while other devices stayed on 10.0 (14A346) - the first iPhone with no headphone jack and a non-moving haptic home button. Exclusivity is well attested by IPSW mirrors but was not positively confirmed, so treat as medium confidence."
+  },
+  {
+   "build": "21A327",
+   "version": "17.0",
+   "priority": "nice-to-have",
+   "reason": "iPhone 15 / 15 Pro out-of-box build (21A326/21A327), distinct from 21A329 which shipped to existing devices on 2023-09-18. If you take only one 17.0 image, you will get one tree or the other, not both. Source for the 17.0 release itself: https://en.wikipedia.org/wiki/IOS_17"
+  },
+  {
+   "build": "23A345",
+   "version": "26.0",
+   "priority": "nice-to-have",
+   "reason": "iPhone 17 Pro / iPhone Air preinstall build (23A330 for other iPhone 17 models), distinct from the general 26.0 build 23A341. No audio difference is documented - explicitly, no new or changed camera shutter sound was found for the new Center Stage front camera - so this is coverage insurance only. Build table source: https://en.wikipedia.org/wiki/IOS_26 , cross-checked against https://support.apple.com/en-us/123075"
+  },
+  {
+   "build": "9A405",
+   "version": "5.0.1",
+   "priority": "nice-to-have",
+   "reason": "The 4S-era Siri build tree; Siri was iPhone 4S-exclusive for over a year and carries its own activation and response audio cues. ipsw.me lists 9A405 for iPhone4,1. Medium confidence on whether this build is genuinely device-exclusive versus shared."
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+#INCLUDE ../../shared/en/yesConfirmation.inc          [notExists;node=phoneCallVerb;constraint=before]
+#INCLUDE ../../shared/en/noConfirmation.inc          [notExists;node=phoneCallVerb;constraint=before]
+#INCLUDE ../../shared/en/contactConfirmation.inc   [notExists;node=phoneCallVerb;constraint=before]
+
+yes
+    (call|dial|phone) [notExists;node="personFirstName,personLastName,personFullName,personRelationship,personNickName,localSearchBusinessName,localSearchCategory";constraint=after]
+    {yes} {go ahead and} {(make|place) the} (call|dial|phone) (him | her | them) {please}
+    (I’d|I would) like to (call|phone) (him|her|them)
+    I want to (call|phone) (him|her|them)
+
+no
+    no (don’t | do not) {call|dial|phone} {thanks | thank you}
+    no {call|dial|phone} (thanks | thank you)
+    ;no call mike instead
+    no (call|dial|phone) [notExists;node="personFirstName,personLastName,personFullName";constraint=adjAfter]
+    no
+    {please} (don’t | do not) {do (it | that)}
+    {no} (don’t | do not) {(place | make) {the}} call
+    {no} (don’t | do not) (call|dial|phone) (him | her | them)
+    {no} (cancel | abort) {the call}
+    (cancel | abort) (calling|dialing|phoning)
+    {no} (I | we) (don’t | do not) want you to
+    {I | we} (don’t | do not) confirm
+    I don’t want to (call|phone) (him|her|them)
+
+    not
+
+;<rdar://problem/9799051> "I can't find Nobody in your address book"
+no [notExists;node=phoneCallVerb;constraint=before]
+      nobody
+      no one
+
+no [notExists;node=phoneCallVerb;constraint=before][exists;node=phoneCallContact;constraint=promptTarget]
+      ;@TODO revmove this node after "show Other panel <rdar://problem/18094418>" is fully implemented.
+      ;(none|neither) {of them}
+      ;some(one|body) else
+      ;other

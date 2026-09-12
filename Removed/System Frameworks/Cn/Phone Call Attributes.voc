@@ -1,0 +1,25 @@
+missed
+    (未|漏|没{有})接{的}
+    没接{到|着|成}{的}
+    (漏掉|错过)
+
+new
+    (新{的}|un{-}read|未(听|看|读){的}) [exists;node="phoneCallNoun,voiceMailNoun";constraint=after]
+    {还}没(听|看|读){过}{的}[exists;node="phoneCallNoun,voiceMailNoun";constraint=after]
+
+recent
+    最(近|后|新){的}
+
+last
+    上{一}(次|个)
+    刚(刚|才){的} [conf=high]
+    了 ; English uses simple past tense "called me" to infer this category. Chinese needs to catch the present perfect tense or otherwise the behavior can't be consistent.
+
+received
+    (收|接)到{的}
+    呼入{的}
+    给我 [exists;node=phoneCallVerb;category=find][exists;node=phoneCallNoun;category=call]
+
+outgoing
+    {最近}(拨出|呼出|打出){过|去}{的}
+    {最近}拨{过}的
