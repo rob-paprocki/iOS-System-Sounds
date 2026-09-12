@@ -18,6 +18,10 @@ web/
 # Run logs.
 _logs/
 
+# Staging directory for release assets, built by tools/make-web.py and
+# uploaded with gh release upload. Nothing here belongs in git.
+_dist/
+
 # Release archives
 *.zip
 
