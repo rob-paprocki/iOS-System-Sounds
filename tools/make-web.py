@@ -26,6 +26,7 @@ order, so the browser joins them by position rather than by key.
     python3 tools/make-web.py [--jobs 8] [--bitrate 96k] [--no-zips]
 """
 import argparse
+import collections
 import json
 import os
 import shutil
@@ -58,11 +59,29 @@ SHELVES = [
 ]
 
 
+def source_codec(path):
+    r = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'a:0',
+                        '-show_entries', 'stream=codec_name', '-of',
+                        'default=nw=1:nk=1', path], capture_output=True, text=True)
+    return r.stdout.strip()
+
+
 def encode(job):
     src, dst, bitrate = job
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src):
         return ('cached', src)
+
+    # Roughly a third of the collection is already AAC, just sometimes in a CAF
+    # container rather than an MP4 one. Re-encoding those would lose a
+    # generation for nothing, so copy the stream and change the wrapper.
+    if source_codec(src) == 'aac':
+        r = subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', src, '-map', '0:a:0',
+                            '-c:a', 'copy', '-movflags', '+faststart', dst],
+                           capture_output=True)
+        if r.returncode == 0 and os.path.exists(dst):
+            return ('copied', src)
+
     base = ['ffmpeg', '-v', 'error', '-y', '-i', src, '-map', '0:a:0',
             '-c:a', 'aac', '-b:a', bitrate, '-movflags', '+faststart', dst]
     if subprocess.run(base, capture_output=True).returncode == 0 and os.path.exists(dst):
@@ -143,7 +162,13 @@ def main():
         jobs.append((s['file'], os.path.join(args.out, 'audio', rel), args.bitrate))
         rows.append((s, rel))
 
-    if not args.no_audio:
+    if args.no_audio:
+        # The index must never list a preview that is not there, so when the
+        # encode is skipped, fall back to what is already on disk.
+        rows = [(s, rel) for s, rel in rows
+                if os.path.exists(os.path.join(args.out, 'audio', rel))]
+        print('reusing %d previews already built' % len(rows))
+    else:
         os.makedirs(args.out, exist_ok=True)
         with ThreadPoolExecutor(max_workers=args.jobs) as ex:
             results = list(ex.map(encode, jobs))
@@ -152,7 +177,9 @@ def main():
                 print('no decodable audio: %s' % path, file=sys.stderr)
         playable = set(p for tag, p, in results if tag != 'skipped')
         rows = [(s, rel) for s, rel in rows if s['file'] in playable]
-        print('encoded %d previews' % len(rows))
+        tally = collections.Counter(tag for tag, _ in results)
+        print('previews: %d total (%s)'
+              % (len(rows), ', '.join('%d %s' % (n, t) for t, n in tally.most_common())))
 
     core, detail, peaks = [], [], bytearray()
     for s, rel in rows:

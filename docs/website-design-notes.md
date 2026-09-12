@@ -182,3 +182,44 @@ For someone who cannot hear the sounds: the waveform is drawn for every row whet
 6. **The category tree is Apple's own folder structure.** Do not invent, merge or rename categories to make the UI tidier. Do not flatten the slash paths away; the subcategory is real information.
 7. **Spoken Content stays separate.** It may be included by the user, but it never appears in a default view.
 8. **No Apple pastiche.** No iOS chrome, no SF fonts, no Apple logos or product imagery, no styling that could read as an official Apple property.
+
+## 11. Where this is deployed
+
+Decided 2026-09-12. These are constraints on the build, not suggestions.
+
+**The site source lives in this repository under `site/`.** The audio, the index and the
+generator are all here, so the data contract cannot drift between two repositories.
+
+**The site is served by Cloudflare Pages. The audio is served from a Cloudflare R2 public
+bucket on a custom domain, not from Pages.** Pages caps a free-tier site at 20,000 files and
+25 MiB per file. The current corpus would fit, at roughly 10,730 files and a 13.2 MB largest
+file, but it sits close enough to the ceiling that another few years of iOS releases would
+break it. R2 has no egress charge and no file-count ceiling, so audio scales independently of
+the site.
+
+This means `preview` and `file` in the index are paths relative to an audio origin, not to the
+site root. Resolve both against a single configurable base URL. Do not hard-code same-origin
+paths anywhere.
+
+**The preview mirror is never committed.** `web/` is gitignored. `tools/make-web.py` builds
+it, and it ships as `iOS-System-Sounds-web-bundle.zip` on the GitHub release, so the site can
+be built without ffmpeg. Cloudflare Pages' build image has no ffmpeg either, so the mirror is
+built in CI or locally and uploaded, never generated at deploy time.
+
+**Sizes, measured rather than estimated:**
+
+| | |
+|---|---|
+| Originals, all 5,359 sounds | 355 MB |
+| AAC preview mirror, 5,358 sounds | 191 MB |
+| `index.core.json` | 1.07 MB |
+| `index.detail.json` | 2.09 MB |
+| `peaks.bin` | 0.26 MB |
+| Whole corpus playing time | 5.1 hours |
+
+**1,982 of the previews are stream copies, not re-encodes.** Every `.m4a` in the collection is
+already AAC, and a fraction of the CAF files are too, so those are remuxed rather than
+re-encoded and are bit-identical to Apple's audio. The remaining 3,375 are encoded at 96 kbps.
+Roughly half the CAF files turn out to be Opus in a CAF container; they are currently
+transcoded to AAC for one-format simplicity, but remuxing them to WebM would preserve the
+original stream if that trade is ever worth revisiting.

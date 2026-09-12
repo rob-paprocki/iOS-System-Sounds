@@ -164,9 +164,15 @@ keys are public and get fetched automatically.
 Two more scripts produce things that are not committed:
 
 ```sh
-python3 tools/make-wav.py     # uncompressed WAV mirror, see Releases
-python3 tools/make-web.py     # AAC preview mirror and index for a web front end
+python3 tools/make-wav.py     # uncompressed WAV mirror, if you want one locally
+python3 tools/make-web.py     # AAC preview mirror, index and per-category archives
 ```
+
+`make-web.py` exists because most of this collection cannot be played in a browser. It writes
+an AAC copy of every sound, stream-copying rather than re-encoding the 1,982 files that were
+already AAC, alongside a split index and one file of waveform peaks. That output is published
+as a bundle on the [latest release](../../releases/latest), so a site can be built from it
+without needing ffmpeg.
 
 ## Caveats
 
