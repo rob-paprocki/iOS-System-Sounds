@@ -3,7 +3,7 @@
 Every audio file Apple shipped inside iOS, from the original iPhone in 2007 to iOS 26.6.1,
 pulled out of 129 IPSW filesystems, de-duplicated across all of them, and sorted by function.
 
-**5,425 distinct sounds · 129 builds · 98 release lines · 19 years**
+**5,359 distinct sounds · 129 builds · 98 release lines · 19 years**
 
 Other collections cover `System/Library/Audio/UISounds` and stop there. This one walks the
 whole root filesystem, so it also has VoiceOver, Siri voice previews, the Photos Memories
@@ -11,13 +11,13 @@ soundtrack stems, haptic cues, carrier tones, spatial audio, hearing and headpho
 Find My tones, emergency audio, and a long tail of per-framework one-offs.
 
 Because it covers every release rather than one, it knows *when* each sound existed. 1,580
-of these still ship. 3,845 do not.
+of these still ship. 3,779 do not.
 
 ## Layout
 
 ```
 Current/         1,580 files - still present in iOS 26.6.1
-Removed/         1,906 files - shipped once, no longer in iOS
+Removed/         1,840 files - shipped once, no longer in iOS
 Spoken Content/  1,939 files - Nike+ workout narration and similar bulk speech,
                                kept separate so it does not swamp the system sounds
 sounds.json      every sound: category, format, duration, which releases it shipped in
@@ -37,7 +37,7 @@ re-encoded at any point.
 | Photos Memories (soundtrack stems) | 1,845 |
 | Siri & Voices (voice previews, voice assets, Siri interface) | 541 |
 | UI Sounds (iPhone, Watch, New, Modern) | 371 |
-| System Frameworks (one folder per originating framework) | 252 |
+| System Frameworks (one folder per originating framework) | 186 |
 | Accessibility (VoiceOver, Magnifier, Live Speech, Personal Audio) | 230 |
 | Audio & Headphones | 69 |
 | Ringtones & Alert Tones | 47 |
@@ -51,9 +51,9 @@ re-encoded at any point.
 
 The trees are mixed-format because iOS is:
 
-| `.aiff` | `.m4a` | `.caf` | `.wav` | `.voc` | `.mp3` | `.flac` |
-|---:|---:|---:|---:|---:|---:|---:|
-| 2,179 | 1,918 | 996 | 260 | 66 | 5 | 1 |
+| `.aiff` | `.m4a` | `.caf` | `.wav` | `.mp3` | `.flac` |
+|---:|---:|---:|---:|---:|---:|
+| 2,179 | 1,918 | 996 | 260 | 5 | 1 |
 
 Extensions are taken from the container magic, not from Apple's filename, because a number
 of files shipped mislabelled. Worth knowing before you build anything on these: CAF and AIFF
@@ -177,7 +177,12 @@ covered, but not every patch within it, so a sound removed in 16.5.1 is recorded
 16.6.
 
 `Audio & Headphones/Empty.m4a` is a 258-byte placeholder with a zero-length audio track,
-shipped that way by Apple. 68 files have no measurable duration for similar reasons.
+shipped that way by Apple. It and one other file have no measurable duration.
+
+Not everything with an audio extension is audio. iOS ships Siri speech-recognition
+vocabularies as `.voc`, which is also a Creative Labs audio format; those 66 files are
+data and are excluded. If you extend the extension list in `tools/soundlib.py`, check
+what you caught.
 
 ## Licence
 

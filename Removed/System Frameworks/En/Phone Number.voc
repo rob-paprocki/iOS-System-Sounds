@@ -1,7 +1,0 @@
-#INCLUDE ../../shared/en/us/phone.inc
-#INCLUDE ../../shared/emergencyNumbers.inc
-#INCLUDE ../../shared/globalEmergencyNumbers.inc
-
-#REGEXP
-; accept short codes - not required since phone.inc matches these
-;(\d{1,9})

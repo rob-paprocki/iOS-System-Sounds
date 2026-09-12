@@ -37,7 +37,7 @@ MATRIX = os.path.join(HERE, 'versions.json')
 
 AUDIO_RE = (r'.*\.(mp3|mp2|mp1|mpa|wav|wave|flac|aac|ogg|oga|m4a|m4b|m4p|wma|'
             r'opus|alac|aiff|aif|aifc|mid|midi|amr|awb|caf|dff|dsf|mka|ra|rm|'
-            r'snd|voc|weba|tta|wv)$')
+            r'snd|weba|tta|wv)$')
 AUDIO_EXT = tuple('.' + e for e in AUDIO_RE.split('(')[1].split(')')[0].split('|'))
 ENCRYPTED_MAGIC = b'encrcdsa'
 

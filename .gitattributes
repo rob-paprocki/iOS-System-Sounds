@@ -12,7 +12,7 @@
 sounds.json linguist-generated=true
 sounds.csv  linguist-generated=true
 
-# Don't let 5,425 audio files decide the repo's "language".
+# Don't let 5,359 audio files decide the repo's "language".
 Current/**          linguist-vendored=true
 Removed/**          linguist-vendored=true
 Spoken*Content/**    linguist-vendored=true

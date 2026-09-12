@@ -1,5 +1,0 @@
-#INCLUDE ../gb/phoneCallContactName.voc
-
-emergency services
-    {the} (guards|gardaí|siochana)
-    {the} coast guard

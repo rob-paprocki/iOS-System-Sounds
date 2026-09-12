@@ -1,4 +1,0 @@
-#INCLUDE ../../shared/en/contactReference.inc
-#INCLUDE ../../shared/en/handsfreeReference.inc
-#INCLUDE ../../shared/en/anyContactReference.inc [exists;node=phoneCallContact;constraint=promptTarget]
-
