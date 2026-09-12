@@ -10,6 +10,14 @@ _work/
 # Large, and the Current/ + Removed/ trees are built from it.
 _store/
 
+# Build artifacts for the web front end: the AAC preview mirror, the split
+# index, the waveform peaks and the prebuilt archives. All regenerable with
+# tools/make-web.py, and together larger than the originals they describe.
+web/
+
+# Run logs.
+_logs/
+
 # Release archives
 *.zip
 

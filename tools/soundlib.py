@@ -14,8 +14,11 @@ import subprocess
 AUDIO_EXT = ('.caf', '.m4a', '.aiff', '.aif', '.wav', '.mp3', '.flac', '.aac',
              '.mp2', '.mp1', '.mpa', '.wave', '.ogg', '.oga', '.m4b', '.m4p',
              '.wma', '.opus', '.alac', '.aifc', '.mid', '.midi', '.amr', '.awb',
-             '.dff', '.dsf', '.mka', '.ra', '.rm', '.snd', '.voc', '.weba',
+             '.dff', '.dsf', '.mka', '.ra', '.rm', '.snd', '.weba',
              '.tta', '.wv')
+# .voc is deliberately absent. It is a Creative Labs audio format, but in iOS
+# the only .voc files are Siri speech-recognition vocabularies under
+# CDMFoundation.framework/VocFiles.bundle -- data, not sound.
 
 # Container magic -> canonical extension, for files whose name lies.
 MAGIC = {b'caff': '.caf', b'RIFF': '.wav', b'FORM': '.aiff',

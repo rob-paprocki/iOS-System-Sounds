@@ -27,11 +27,17 @@ import re
 import shutil
 import subprocess
 import sys
+import time
+import urllib.error
 import urllib.request
+import zipfile
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MATRIX = os.path.join(HERE, 'versions.json')
 
 AUDIO_RE = (r'.*\.(mp3|mp2|mp1|mpa|wav|wave|flac|aac|ogg|oga|m4a|m4b|m4p|wma|'
             r'opus|alac|aiff|aif|aifc|mid|midi|amr|awb|caf|dff|dsf|mka|ra|rm|'
-            r'snd|voc|weba|tta|wv)$')
+            r'snd|weba|tta|wv)$')
 AUDIO_EXT = tuple('.' + e for e in AUDIO_RE.split('(')[1].split(')')[0].split('|'))
 ENCRYPTED_MAGIC = b'encrcdsa'
 
@@ -40,13 +46,54 @@ def run(cmd, **kw):
     return subprocess.run(cmd, capture_output=True, text=True, **kw)
 
 
-def firmware_meta(device, build):
+def api_meta(device, build, attempts=6):
+    """ipsw.me rate-limits hard. A run that asks about a hundred builds will
+    be told 429, so back off rather than failing the version."""
     url = 'https://api.ipsw.me/v4/device/%s' % device
-    data = json.load(urllib.request.urlopen(url, timeout=60))
-    for f in data['firmwares']:
-        if f['buildid'] == build:
-            return f
-    sys.exit('build %s not listed for %s' % (build, device))
+    for i in range(attempts):
+        try:
+            data = json.load(urllib.request.urlopen(url, timeout=60))
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 503) and i + 1 < attempts:
+                time.sleep(5 * (i + 1))
+                continue
+            raise
+        for f in data['firmwares']:
+            if f['buildid'] == build:
+                return f
+        sys.exit('build %s not listed for %s' % (build, device))
+    sys.exit('ipsw.me kept rate-limiting for %s %s' % (device, build))
+
+
+def firmware_meta(device, build):
+    """Prefer the matrix. It already carries the version, size and URL, so a
+    normal run never needs to touch the API at all."""
+    if os.path.exists(MATRIX):
+        for v in json.load(open(MATRIX))['versions']:
+            if v['build'] == build and v['device'] == device:
+                return {'version': v['version'], 'filesize': v['bytes'],
+                        'url': v['url'], 'buildid': build}
+    return api_meta(device, build)
+
+
+def download_url(url, target, expect_bytes=0):
+    """Fetch a known URL straight from Apple, resuming a partial file.
+
+    Going direct keeps the whole run independent of the ipsw.me API, which
+    rate-limits and is not needed once the matrix has the URL.
+    """
+    part = target + '.part'
+    for attempt in range(4):
+        r = subprocess.run(['curl', '-sSL', '--fail', '--retry', '3',
+                            '--retry-delay', '5', '-C', '-', '-o', part, url])
+        if r.returncode == 0 and os.path.exists(part):
+            if expect_bytes and os.path.getsize(part) != expect_bytes:
+                time.sleep(5)
+                continue
+            os.rename(part, target)
+            return target
+        time.sleep(5 * (attempt + 1))
+    return None
 
 
 def md5_of(path):
@@ -63,6 +110,11 @@ def download(device, build, work, meta):
     if os.path.exists(target):
         print('  already downloaded')
         return target
+    if meta.get('url'):
+        got = download_url(meta['url'], target, meta.get('filesize', 0))
+        if got:
+            return got
+        print('  direct download failed, falling back to ipsw', file=sys.stderr)
     base = ['ipsw', 'download', 'ipsw', '--device', device, '--build', build, '-y', '-o', work]
     r = run(base)
     hits = glob.glob(os.path.join(work, '*%s*.ipsw' % build))
@@ -74,24 +126,45 @@ def download(device, build, work, meta):
         # The bytes may still be correct: ipsw.me's SHA1 is wrong for some old
         # firmwares. Only accept them if the independent MD5 matches.
         got = md5_of(part[0])
-        if meta.get('md5sum') and got == meta['md5sum']:
+        published = meta.get('md5sum') or api_meta(device, build).get('md5sum')
+        if published and got == published:
             print('  SHA1 record mismatched but MD5 matches ipsw.me (%s); accepting' % got[:12])
             r = run(base + ['--ignore-sha1'])
             hits = glob.glob(os.path.join(work, '*%s*.ipsw' % build))
             if hits:
                 return hits[0]
         else:
-            sys.exit('  download corrupt: MD5 %s != published %s' % (got, meta.get('md5sum')))
+            sys.exit('  download corrupt: MD5 %s != published %s' % (got, published))
     sys.exit('  download failed: %s' % (r.stderr.strip()[-300:] or r.stdout.strip()[-300:]))
 
 
 def filesystem_dmg(ipsw, build, work):
     """Unpack the root filesystem DMG. This only reads the IPSW zip; it does
-    not mount anything, so it is safe to call before knowing the era."""
+    not mount anything, so it is safe to call before knowing the era.
+
+    `ipsw extract --dmg fs` reads BuildManifest.plist to find the filesystem.
+    IPSWs from before iOS 4 have no BuildManifest, only a Restore.plist, so
+    when that fails the largest DMG in the zip is taken instead -- in every
+    iPhone IPSW that is the root filesystem, the others being the tiny
+    ramdisks.
+    """
     dmgdir = os.path.join(work, 'dmg-%s' % build)
     shutil.rmtree(dmgdir, ignore_errors=True)
     r = run(['ipsw', 'extract', '--dmg', 'fs', '-o', dmgdir, ipsw])
     dmgs = glob.glob(os.path.join(dmgdir, '**', '*.dmg'), recursive=True)
+    if not dmgs:
+        os.makedirs(dmgdir, exist_ok=True)
+        try:
+            with zipfile.ZipFile(ipsw) as z:
+                names = [n for n in z.namelist() if n.lower().endswith('.dmg')]
+                if names:
+                    biggest = max(names, key=lambda n: z.getinfo(n).file_size)
+                    out = os.path.join(dmgdir, os.path.basename(biggest))
+                    with z.open(biggest) as src, open(out, 'wb') as dst:
+                        shutil.copyfileobj(src, dst, 1 << 22)
+                    dmgs = [out]
+        except (zipfile.BadZipFile, OSError) as e:
+            return None, None, 'zip fallback failed: %s' % e
     if not dmgs:
         shutil.rmtree(dmgdir, ignore_errors=True)
         return None, None, r.stderr.strip()[-300:]
