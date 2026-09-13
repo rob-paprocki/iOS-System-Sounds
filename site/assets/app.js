@@ -7,19 +7,33 @@
    =========================================================================== */
 
 import {
-  CFG, data, state, result, shelves,
+  CFG, data, state, result, shelves, VIEWS,
   on, emit, readURL, writeURL, filtersActive, fmtInt, announce, EXCLUDED_BY_DEFAULT
 } from './store.js';
 import * as list from './list.js';
 import * as ui from './ui.js';
 import * as tray from './tray.js';
 import * as player from './player.js';
+import * as screens from './screens.js';
+import { initTheme } from './theme.js';
 
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
 const gridEl = document.getElementById('list');
 const shelvesEl = document.getElementById('shelves');
 const toolbarEl = document.querySelector('.list-toolbar');
+
+const screenEls = {
+  home: document.getElementById('screen-home'),
+  contents: document.getElementById('screen-contents'),
+  memories: document.getElementById('screen-memories'),
+  sounds: document.getElementById('screen-sounds')
+};
+
+/* Screens are built on first visit and kept. The overview is invalidated when
+   late-arriving data would change it — the shelves and the release history both
+   land after first paint. */
+const built = { home: false, contents: false };
 
 let token = 0;
 let selAnchor = -1;
@@ -51,6 +65,35 @@ function runQuery() {
 function changed(push) {
   writeURL(push);
   runQuery();
+}
+
+/* --- screens ----------------------------------------------------------------- */
+
+function showView() {
+  for (const [name, el] of Object.entries(screenEls)) el.hidden = name !== state.view;
+  ui.syncNav();
+  if (!data.ready) return;
+
+  if (state.view === 'home' && !built.home) {
+    screens.renderHome(screenEls.home);
+    built.home = true;
+  }
+  if (state.view === 'contents' && !built.contents) {
+    screens.renderContents(screenEls.contents);
+    built.contents = true;
+  }
+  if (state.view === 'memories') screens.renderMemories(screenEls.memories);
+  if (state.view === 'sounds') { syncZeroState(); list.render(); }
+
+  list.refreshShelfRows();
+}
+
+function goTo(view, push = true) {
+  if (!VIEWS.includes(view) || view === state.view) return;
+  state.view = view;
+  writeURL(push);
+  showView();
+  window.scrollTo(0, 0);
 }
 
 /* --- zero state -------------------------------------------------------------- */
@@ -109,6 +152,7 @@ worker.onmessage = (e) => {
     });
     readURL();
     emit('core');
+    showView();
     runQuery();
     return;
   }
@@ -123,6 +167,10 @@ worker.onmessage = (e) => {
     list.render();
     list.refreshShelfRows();
     list.syncDetail();
+    // The overview's release-change table is computed from in[], which has only
+    // just arrived, so rebuild it.
+    built.home = false;
+    if (state.view === 'home') showView();
     // Re-run: comparison, size sorting and searching the IPSW path all need the
     // detail index, and the first query ran before it had arrived.
     runQuery();
@@ -131,7 +179,9 @@ worker.onmessage = (e) => {
 
   if (m.type === 'shelves') {
     shelves.list = m.shelves;
-    syncZeroState();
+    built.home = false;                       // the overview leads with a shelf
+    if (state.view === 'home') showView();
+    if (state.view === 'sounds') syncZeroState();
     return;
   }
 
@@ -142,9 +192,11 @@ worker.onmessage = (e) => {
     result.marks = m.marks || null;
     result.summary = m.summary || null;
     emit('result');
-    syncZeroState();
-    list.syncDetail();
-    list.render();
+    if (state.view === 'sounds') {
+      syncZeroState();
+      list.syncDetail();
+      list.render();
+    }
     if (pendingOpenScroll) { pendingOpenScroll = false; scrollOpenIntoView(); }
     announce(`${fmtInt(result.ids.length)} of ${fmtInt(data.counts.total)} sounds`);
     return;
@@ -331,10 +383,52 @@ window.addEventListener('popstate', () => {
   ui.syncSorts();
   ui.syncDiffBar();
   document.body.classList.toggle('dense', state.dense);
+  showView();
   runQuery();
+});
+
+/* --- cross-screen jumps --------------------------------------------------------- */
+
+screens.wireScreens(
+  (view) => goTo(view),
+
+  // A category in the contents table opens the tool filtered to it.
+  (name) => {
+    state.cats = new Set([name]);
+    state.q = '';
+    state.browse = true;
+    document.getElementById('q').value = '';
+    ui.renderChips();
+    goTo('sounds');
+    changed(false);
+    announce(`Showing ${name}`);
+  },
+
+  // A release in the overview's change table opens it against the one before.
+  (v) => {
+    state.from = Math.max(0, v - 1);
+    state.to = v;
+    state.diffMode = true;
+    state.browse = true;
+    ui.syncRuler();
+    ui.syncDiffBar();
+    goTo('sounds');
+    changed(false);
+  }
+);
+
+on('memset', () => { writeURL(false); showView(); });
+on('memslots', () => screens.refreshSequencer());
+
+/* Canvas colours are baked in at draw time, so a theme flip has to repaint. */
+on('theme', () => {
+  list.render();
+  list.refreshShelfRows();
+  ui.syncRuler();
 });
 
 /* --- go ------------------------------------------------------------------------ */
 
+initTheme();
 ui.initUI(changed);
 tray.initTray();

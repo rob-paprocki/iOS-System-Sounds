@@ -13,12 +13,26 @@ import { data, previewURL, emit, announce, spokenDuration } from './store.js';
 let el = null;
 let current = -1;     // sound index currently loaded
 let raf = 0;
+let seq = null;       // queued indices, played back to back
+let seqI = 0;
 
 function ensure() {
   if (el) return el;
   el = new Audio();
   el.preload = 'none';
-  el.addEventListener('ended', () => { stopTicking(); current = -1; emit('play', null); announce('Stopped'); });
+  el.addEventListener('ended', () => {
+    // A queued sequence — the A/B pair, or a Memories soundtrack — rolls on.
+    if (seq && seqI + 1 < seq.length) {
+      seqI += 1;
+      play(seq[seqI], true);
+      return;
+    }
+    seq = null;
+    stopTicking();
+    current = -1;
+    emit('play', null);
+    announce('Stopped');
+  });
   el.addEventListener('pause', () => { stopTicking(); emit('play', playing() ? current : null); });
   el.addEventListener('playing', () => { startTicking(); emit('play', current); });
   el.addEventListener('error', () => {
@@ -73,8 +87,9 @@ export function toggle(i) {
   play(i);
 }
 
-export function play(i) {
+export function play(i, keepSequence = false) {
   const a = ensure();
+  if (!keepSequence) seq = null;          // a direct press abandons any queue
   const url = previewURL(i);
   if (!url) { emit('playerror', i); return; }
 
@@ -97,14 +112,25 @@ export function seek(i, fraction) {
   if (a.paused) a.play().catch(() => {});
 }
 
+/**
+ * Play a list of sounds back to back: the A/B compare, or a Memories soundtrack
+ * assembled from its stems. Pressing play on any single row abandons the queue,
+ * so an unfinished sequence can never surprise someone later.
+ */
+export function playSequence(list) {
+  if (!list || !list.length) return;
+  ensure();
+  seq = list.slice();
+  seqI = 0;
+  play(seq[0], true);
+}
+
+export function stopSequence() {
+  seq = null;
+  if (el && !el.paused) { el.pause(); current = -1; emit('play', null); }
+}
+
 /** Play one sound, then the other, for the A/B compare. */
-let pairHandler = null;
 export function playPair(i, j) {
-  const a = ensure();
-  // Drop any earlier pair that never finished, so an abandoned A/B cannot
-  // surprise someone with a second sound much later.
-  if (pairHandler) a.removeEventListener('ended', pairHandler);
-  pairHandler = () => { a.removeEventListener('ended', pairHandler); pairHandler = null; play(j); };
-  a.addEventListener('ended', pairHandler);
-  play(i);
+  playSequence([i, j]);
 }

@@ -10,15 +10,29 @@
 
 import { data, buildsOf } from './store.js';
 
-const C = {
-  ink: '#16181A',
-  muted: '#5B6060',
-  rule: '#D4D0C6',
-  ground: '#F4F2ED',
-  present: '#1F6F5C',
-  removed: '#9A4A20',
-  signal: '#1F3BB3'
-};
+/* Canvas cannot read CSS custom properties, so the palette is pulled off the
+   root element once and cached. themeChanged() drops the cache; the light and
+   dark ledgers use the same token names, so nothing else here changes. */
+const TOKENS = ['ink', 'ink-muted', 'rule', 'ground', 'present', 'removed', 'signal', 'wash'];
+let C = null;
+
+export function themeChanged() { C = null; }
+
+function palette() {
+  if (C) return C;
+  const cs = getComputedStyle(document.documentElement);
+  C = {};
+  for (const name of TOKENS) {
+    const key = name === 'ink-muted' ? 'muted' : name;
+    C[key] = cs.getPropertyValue('--' + name).trim() || '#000';
+  }
+  return C;
+}
+
+/* A translucent tint of a token, for the played-baseline and similar. */
+function tint(colour, alpha) {
+  return `color-mix(in srgb, ${colour} ${Math.round(alpha * 100)}%, transparent)`;
+}
 
 /* Size a canvas to its CSS box at device resolution. Returns the 2D context
    already scaled, so all drawing below is in CSS pixels. */
@@ -57,13 +71,14 @@ export function peaksOf(i) {
 export function drawWave(canvas, i, progress = null, cssW = 0, cssH = 0) {
   const rect = canvas.getBoundingClientRect();
   const { ctx, w, h } = setup(canvas, cssW || rect.width || 120, cssH || rect.height || 24);
+  const c = palette();
   const present = data.status[i] === 1;
-  const colour = present ? C.present : C.removed;
+  const colour = present ? c.present : c.removed;
   const peaks = peaksOf(i);
   const mid = h / 2;
 
   // Baseline: solid for present, dashed for removed.
-  ctx.strokeStyle = present ? 'rgba(31,111,92,.35)' : C.removed;
+  ctx.strokeStyle = present ? tint(c.present, 0.35) : c.removed;
   ctx.lineWidth = 1;
   if (!present) ctx.setLineDash([2, 2]);
   ctx.beginPath();
@@ -74,7 +89,7 @@ export function drawWave(canvas, i, progress = null, cssW = 0, cssH = 0) {
 
   if (!peaks) {
     // No peak data for this sound: a flat bar, never a fake shape.
-    ctx.fillStyle = C.rule;
+    ctx.fillStyle = c.rule;
     ctx.fillRect(0, mid - 1, w, 2);
     return;
   }
@@ -92,7 +107,7 @@ export function drawWave(canvas, i, progress = null, cssW = 0, cssH = 0) {
     const played = playedX >= 0 && x < playedX;
 
     if (present || played) {
-      ctx.fillStyle = played ? C.ink : colour;
+      ctx.fillStyle = played ? c.ink : colour;
       ctx.fillRect(x, y, bw, bh);
     } else {
       ctx.strokeStyle = colour;
@@ -102,7 +117,7 @@ export function drawWave(canvas, i, progress = null, cssW = 0, cssH = 0) {
   }
 
   if (playedX >= 0) {
-    ctx.fillStyle = C.ink;
+    ctx.fillStyle = c.ink;
     ctx.fillRect(Math.min(playedX, w - 1), 0, 1, h);
   }
 }
@@ -116,16 +131,17 @@ export function drawWave(canvas, i, progress = null, cssW = 0, cssH = 0) {
 export function drawLifespan(canvas, i, cssW = 0, cssH = 0) {
   const rect = canvas.getBoundingClientRect();
   const { ctx, w, h } = setup(canvas, cssW || rect.width || 90, cssH || rect.height || 14);
+  const c = palette();
   const V = data.versions.length;
   if (!V) return;
 
-  ctx.fillStyle = C.rule;
+  ctx.fillStyle = c.rule;
   ctx.fillRect(0, h - 1, w, 1);
 
   const builds = buildsOf(i);
   if (!builds) return;                       // detail index has not arrived yet
 
-  ctx.fillStyle = data.status[i] === 1 ? C.present : C.removed;
+  ctx.fillStyle = data.status[i] === 1 ? c.present : c.removed;
   const step = w / V;
   const bw = Math.max(1, step);
   for (let k = 0; k < builds.length; k++) {
@@ -141,6 +157,7 @@ export function drawLifespan(canvas, i, cssW = 0, cssH = 0) {
 export function drawRuler(canvas, from, to, hover = -1) {
   const rect = canvas.getBoundingClientRect();
   const { ctx, w, h } = setup(canvas, rect.width || 600, rect.height || 40);
+  const c = palette();
   const V = data.versions.length;
   if (!V) return;
 
@@ -155,7 +172,7 @@ export function drawRuler(canvas, from, to, hover = -1) {
     const inRange = k >= from && k <= to;
     const val = counts ? counts[k] / max : 0.35;
     const bh = Math.max(2, val * (h - 4));
-    ctx.fillStyle = k === hover ? C.signal : inRange ? C.ink : C.rule;
+    ctx.fillStyle = k === hover ? c.signal : inRange ? c.ink : c.rule;
     ctx.fillRect(k * step + (step - bw) / 2, h - bh, bw, bh);
   }
 }
@@ -164,18 +181,19 @@ export function drawRuler(canvas, from, to, hover = -1) {
 export function drawFilmstrip(canvas, i) {
   const rect = canvas.getBoundingClientRect();
   const { ctx, w, h } = setup(canvas, rect.width || 400, rect.height || 26);
+  const c = palette();
   const V = data.versions.length;
   if (!V) return;
 
   const step = w / V;
-  ctx.fillStyle = C.rule;
+  ctx.fillStyle = c.rule;
   ctx.fillRect(0, h - 1, w, 1);
 
   const builds = buildsOf(i);
   if (!builds) return;
 
   const set = new Set(Array.from(builds));
-  ctx.fillStyle = data.status[i] === 1 ? C.present : C.removed;
+  ctx.fillStyle = data.status[i] === 1 ? c.present : c.removed;
   for (let k = 0; k < V; k++) {
     if (set.has(k)) ctx.fillRect(k * step, 2, Math.max(1, step - 0.5), h - 4);
   }

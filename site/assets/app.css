@@ -5,47 +5,52 @@
    =========================================================================== */
 
 @font-face {
-  font-family: 'Public Sans';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url(fonts/public-sans-latin.woff2) format('woff2');
+  src: url(fonts/inter-latin.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Public Sans';
+  font-family: 'Inter';
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url(fonts/public-sans-latin-ext.woff2) format('woff2');
+  src: url(fonts/inter-latin-ext.woff2) format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
     U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
-  font-family: 'Fragment Mono';
+  font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(fonts/fragment-mono-latin.woff2) format('woff2');
+  src: url(fonts/ibm-plex-mono-latin.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
-  font-family: 'Fragment Mono';
+  font-family: 'IBM Plex Mono';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(fonts/fragment-mono-latin-ext.woff2) format('woff2');
+  src: url(fonts/ibm-plex-mono-latin-ext.woff2) format('woff2');
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
     U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+/* Light is the ground state: ink on paper, hairlines doing the structural work.
+   Dark is the same ledger under a lamp — the roles never swap, only the values.
+   Three states: an explicit choice stamps data-theme on <html>; "system" stamps
+   nothing and lets prefers-color-scheme decide. */
 :root {
+  color-scheme: light;
   --ground: #F4F2ED;
   --surface: #FBFAF7;
   --ink: #16181A;
@@ -53,11 +58,44 @@
   --rule: #D4D0C6;
   --present: #1F6F5C;
   --removed: #9A4A20;
-  --signal: #1F3BB3;
+  --signal: #5D5294;
   --match: #FFE58A;
+  --wash: #EAE7DF;
+}
 
-  --sans: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --mono: 'Fragment Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #161826;
+    --surface: #1E2030;
+    --ink: #E9E9ED;
+    --ink-muted: #9397AB;
+    --rule: #3F424D;
+    --present: #5AA992;
+    --removed: #C8834F;
+    --signal: #9184D9;
+    --match: #6B5A1E;
+    --wash: #1A1C2B;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #161826;
+  --surface: #1E2030;
+  --ink: #E9E9ED;
+  --ink-muted: #9397AB;
+  --rule: #3F424D;
+  --present: #5AA992;
+  --removed: #C8834F;
+  --signal: #9184D9;
+  --match: #6B5A1E;
+  --wash: #1A1C2B;
+}
+
+:root {
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --row-h: 44px;
   --glyph-w: 120px;
@@ -116,11 +154,32 @@ body {
   position: sticky; top: 0; z-index: 30;
 }
 .header-inner {
-  display: flex; align-items: baseline; justify-content: space-between;
-  gap: 16px; height: 46px;
+  display: flex; align-items: center; gap: 14px;
+  min-height: 46px; flex-wrap: wrap;
 }
 .wordmark { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-.readout { color: var(--ink-muted); margin: 0; text-align: right; }
+.wordmark button {
+  font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer;
+}
+.readout { color: var(--ink-muted); margin: 0 0 0 auto; text-align: right; }
+
+/* --- Section nav ------------------------------------------------------------ */
+.nav { display: flex; gap: 2px; }
+.nav button {
+  font: 400 12px var(--sans); color: var(--ink-muted);
+  background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 6px 9px; cursor: pointer;
+}
+.nav button:hover { color: var(--ink); }
+.nav button[aria-current="page"] { color: var(--ink); border-bottom-color: var(--signal); }
+
+.theme-toggle { display: flex; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.theme-toggle button {
+  font: 400 10.5px var(--sans); background: var(--surface); color: var(--ink-muted);
+  border: 0; border-right: 1px solid var(--rule); padding: 4px 8px; cursor: pointer;
+}
+.theme-toggle button:last-child { border-right: 0; }
+.theme-toggle button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
 
 /* --- Search ---------------------------------------------------------------- */
 .search-block { padding: 28px 0 4px; }
@@ -175,7 +234,7 @@ kbd {
 .tips p { margin: 0 0 8px; }
 .tips ul { margin: 0; padding-left: 18px; }
 .tips li { margin: 3px 0; }
-code { font-family: var(--mono); font-size: 11.5px; background: rgba(22,24,26,.05); padding: 1px 4px; }
+code { font-family: var(--mono); font-size: 11.5px; background: var(--wash); padding: 1px 4px; }
 
 /* --- Release ruler --------------------------------------------------------- */
 .ruler-block { padding: 20px 0 0; }
@@ -202,7 +261,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: rgba(22,24,26,.0
 }
 .ruler-sel {
   position: absolute; top: 0; bottom: 0;
-  background: rgba(31, 59, 179, .07);
+  background: color-mix(in srgb, var(--signal) 12%, transparent);
   border-left: 1px solid var(--signal);
   border-right: 1px solid var(--signal);
 }
@@ -245,7 +304,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: rgba(22,24,26,.0
 .chip[aria-pressed="true"] {
   background: var(--ink); color: var(--surface); border-color: var(--ink);
 }
-.chip[aria-pressed="true"] .n { color: rgba(251,250,247,.72); }
+.chip[aria-pressed="true"] .n { color: color-mix(in srgb, var(--surface) 68%, var(--ink)); }
 .chip.excluded { border-style: dashed; }
 
 .status-toggle { display: flex; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
@@ -262,7 +321,8 @@ code { font-family: var(--mono); font-size: 11.5px; background: rgba(22,24,26,.0
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 11px; border: 1px solid var(--signal); color: var(--signal);
-  background: rgba(31,59,179,.05); border-radius: 2px; padding: 4px 8px;
+  background: color-mix(in srgb, var(--signal) 9%, transparent);
+  border-radius: 2px; padding: 4px 8px;
   cursor: pointer;
 }
 .pill .x { font-family: var(--mono); }
@@ -374,9 +434,8 @@ mark { background: var(--match); color: inherit; }
 /* --- Row detail ------------------------------------------------------------ */
 .detail {
   position: absolute; left: 0; right: 0; top: 0;
-  background: var(--surface);
+  background: var(--wash);
   border-bottom: 1px solid var(--rule);
-  box-shadow: inset 0 0 0 999px rgba(22,24,26,.02);
   padding: 14px 0 16px;
   overflow: hidden;
 }
@@ -442,15 +501,6 @@ mark { background: var(--match); color: inherit; }
 .footer-links { display: flex; gap: 18px; font-size: 12px; margin: 10px 0 0; }
 .footer-links a { color: var(--signal); text-underline-offset: 2px; }
 
-.about { margin-top: 14px; font-size: 12px; max-width: 76ch; }
-.about h3 { font-size: 12px; margin: 14px 0 4px; }
-.about p, .about li { margin: 4px 0; }
-.about table { border-collapse: collapse; font-size: 11px; margin-top: 6px; }
-.about td, .about th { border: 1px solid var(--rule); padding: 3px 7px; text-align: left; }
-.about td.mono, .about th + td { font-family: var(--mono); }
-.zip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; padding: 0; list-style: none; }
-.zip-list a { font-size: 11px; }
-
 .noscript { padding: 20px 0; font-size: 13px; }
 
 /* --- Selection tray -------------------------------------------------------- */
@@ -472,6 +522,101 @@ mark { background: var(--match); color: inherit; }
 .tray-actions button.primary { background: var(--signal); border-color: var(--signal); color: #fff; }
 .tray-actions button:disabled { opacity: .45; cursor: default; }
 
+/* ===========================================================================
+   Screens: overview, contents, memories
+   =========================================================================== */
+
+.screen { padding: 26px 0 10px; }
+.screen section { margin-bottom: 34px; }
+.screen h2 { font-size: 19px; font-weight: 600; margin: 0 0 10px; letter-spacing: -0.01em; }
+.screen h3 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+.screen h4 { font-size: 12px; font-weight: 600; margin: 0 0 6px; }
+.screen p { margin: 0 0 10px; max-width: 68ch; }
+.section-note { font-size: 11.5px; color: var(--ink-muted); }
+
+.lede h2 { font-size: 23px; max-width: 22ch; line-height: 1.15; }
+.lede p { font-size: 14px; }
+
+/* The four numbers that say what this is, before any prose. */
+.tally { display: flex; flex-wrap: wrap; gap: 0; margin: 18px 0; border-top: 1px solid var(--rule); }
+.tally div {
+  flex: 1 1 130px; padding: 10px 14px 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.tally dt { font-size: 11px; color: var(--ink-muted); margin-bottom: 2px; }
+.tally dd { margin: 0; font-family: var(--mono); font-size: 20px; }
+
+.cta-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 0; }
+.cta-row .btn + .btn { margin-left: 0; }
+
+.steps { margin: 0 0 10px; padding-left: 18px; max-width: 68ch; }
+.steps li { margin: 5px 0; }
+
+.data-table { border-collapse: collapse; width: 100%; max-width: 780px; font-size: 12px; }
+.data-table th, .data-table td {
+  border-bottom: 1px solid var(--rule); padding: 6px 10px 6px 0; text-align: left; vertical-align: top;
+}
+.data-table thead th {
+  font-size: 11px; font-weight: 600; color: var(--ink-muted);
+  border-bottom: 1px solid var(--ink);
+}
+.data-table .num { text-align: right; padding-right: 16px; }
+.data-table .mono { font-family: var(--mono); font-size: 11px; }
+.data-table a { color: var(--signal); }
+
+.facts.wide div { grid-template-columns: 160px 1fr; }
+.facts.wide dd { font-family: var(--sans); font-size: 12px; }
+
+/* --- Memories --------------------------------------------------------------- */
+
+.set-picker { display: flex; flex-wrap: wrap; gap: 5px; max-width: 900px; }
+
+.role-cols {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 16px;
+}
+.role-col { border-top: 1px solid var(--ink); padding-top: 8px; min-width: 0; }
+.role-col h4 { display: flex; justify-content: space-between; align-items: baseline; }
+.role-col h4 .n { color: var(--ink-muted); font-size: 10.5px; }
+.role-list { display: flex; flex-direction: column; max-height: 340px; overflow-y: auto; }
+
+.stem {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  font: 400 12px var(--sans); text-align: left;
+  background: none; color: var(--ink);
+  border: 0; border-bottom: 1px solid var(--rule); border-left: 2px solid transparent;
+  padding: 5px 6px; cursor: pointer;
+}
+.stem:hover { background: var(--surface); }
+.stem[aria-pressed="true"] { border-left-color: var(--signal); background: var(--wash); }
+.stem-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stem-d { color: var(--ink-muted); font-size: 10.5px; flex: none; }
+
+/* The sequence, drawn to scale: each stem's share of the running time. */
+.seq-bar {
+  display: flex; align-items: stretch; min-height: 42px;
+  border: 1px solid var(--rule); background: var(--surface);
+  margin: 12px 0; position: relative; flex-wrap: wrap;
+}
+.seq-block {
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  padding: 6px 8px; min-width: 0; overflow: hidden;
+  border-right: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--present) 14%, transparent);
+}
+.seq-block:last-of-type { border-right: 0; }
+.seq-block b { font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seq-block span { font-size: 10px; color: var(--ink-muted); }
+.seq-total { width: 100%; margin: 0; padding: 5px 8px; border-top: 1px solid var(--rule); font-size: 11px; color: var(--ink-muted); }
+.seq-empty { margin: 0; padding: 12px; font-size: 12px; color: var(--ink-muted); }
+
+/* --- Static row lists ------------------------------------------------------- */
+/* Shelves and stem lists are tens of rows in normal flow, not the virtualised
+   grid, so they must not inherit its absolute positioning. */
+.rows-static { position: relative; border-top: 1px solid var(--rule); }
+.rows-static .row { position: static; transform: none !important; }
+
 /* --- Responsive ------------------------------------------------------------ */
 @media (max-width: 1040px) {
   :root { --cols: var(--glyph-w) minmax(150px,1fr) var(--life-w) 88px 60px 104px; }
@@ -487,8 +632,11 @@ mark { background: var(--match); color: inherit; }
 @media (max-width: 640px) {
   .ruler { display: none; }
   .ruler-selects { display: flex; flex-wrap: wrap; }
-  .header-inner { height: auto; padding: 8px 0; flex-direction: column; align-items: flex-start; gap: 2px; }
-  .readout { text-align: left; }
+  /* padding-block, not the shorthand: .wrap owns the side gutter and a
+     shorthand here would zero it and push the wordmark against the edge. */
+  .header-inner { padding-block: 8px; gap: 8px; }
+  .readout { margin-left: 0; text-align: left; flex-basis: 100%; order: 5; font-size: 10.5px; }
+  .nav button { padding: 5px 7px; }
   .list-toolbar { top: 0; }
   .search-field input { font-size: 16px; padding-right: 13px; padding-bottom: 26px; }
   .search-count { top: auto; bottom: 6px; transform: none; right: 13px; }

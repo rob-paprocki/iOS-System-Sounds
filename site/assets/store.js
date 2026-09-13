@@ -66,7 +66,15 @@ export const shelves = { list: null };
 
 /* --- state ----------------------------------------------------------------- */
 
+/* The four screens. "home" is the landing: an overview with the tool one click
+   away. That departs from the written notes (§1 wants the tool and nothing
+   else) and was settled in the design. */
+export const VIEWS = ['home', 'sounds', 'contents', 'memories'];
+
 export const state = {
+  view: 'home',
+  memSet: '',        // which Memories soundtrack is open
+  slots: {},         // role -> sound index, the stem sequence being built
   q: '',
   cats: new Set(),
   status: 'all',
@@ -164,6 +172,8 @@ export function buildsOf(i) {
 
 export function readURL() {
   const p = new URLSearchParams(location.search);
+  state.view = VIEWS.includes(p.get('view')) ? p.get('view') : 'home';
+  state.memSet = p.get('set') || '';
   state.q = p.get('q') || '';
   state.cats = new Set((p.get('cat') || '').split(',').filter(Boolean));
   state.status = ['present', 'removed'].includes(p.get('status')) ? p.get('status') : 'all';
@@ -186,6 +196,8 @@ export function readURL() {
 
 export function writeURL(push) {
   const p = new URLSearchParams();
+  if (state.view !== 'home') p.set('view', state.view);
+  if (state.view === 'memories' && state.memSet) p.set('set', state.memSet);
   if (state.q) p.set('q', state.q);
   if (state.cats.size) p.set('cat', [...state.cats].join(','));
   if (state.status !== 'all') p.set('status', state.status);

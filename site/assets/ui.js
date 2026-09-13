@@ -1,6 +1,6 @@
 /* ===========================================================================
-   Page chrome: the readout, the search field, the release ruler, the facet
-   chips, the active-filter pills, sorting, and the About panel.
+   Page chrome: the section nav, the readout, the search field, the release
+   ruler, the facet chips, the active-filter pills and sorting.
    =========================================================================== */
 
 import {
@@ -43,6 +43,17 @@ const PLACEHOLDERS = [
   'Try: old phone',
   'Try: sms received'
 ];
+
+/* Which section is showing. The wordmark also goes home, but it is not a nav
+   item and never takes the current-page marker. */
+export function syncNav() {
+  document.querySelectorAll('.nav [data-goto]').forEach(b => {
+    const on_ = b.dataset.goto === state.view;
+    b.setAttribute('aria-pressed', String(on_));
+    if (on_) b.setAttribute('aria-current', 'page');
+    else b.removeAttribute('aria-current');
+  });
+}
 
 export function slugFor(name) {
   return name.toLowerCase().replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -405,45 +416,6 @@ export function syncSorts() {
   });
 }
 
-/* --- about ------------------------------------------------------------------ */
-
-function renderAbout() {
-  const box = $('about');
-  const zips = data.tops.map(t =>
-    `<li><a href="${CFG.releaseBase}${slugFor(t.name)}.zip">${escapeText(t.name)}</a></li>`).join('');
-
-  box.innerHTML = `
-    <p>${escapeText(CFG.notice)}</p>
-
-    <h3>What this is</h3>
-    <p>Every audio file on the root filesystem of ${data.versions.length} iOS builds, one per
-      iOS release line from iOS 1.0 in 2007 to ${escapeText(versionName(data.versions.length - 1))},
-      plus every iPhone launch build. Sounds are de-duplicated across all of them by audio identity,
-      so each entry knows exactly which releases it shipped in. ${fmtInt(data.counts.total)} distinct
-      sounds: ${fmtInt(data.counts.present)} still ship today, ${fmtInt(data.counts.removed)} no longer do.</p>
-
-    <h3>Playing versus downloading</h3>
-    <p>Playback uses an AAC preview, because CAF and AIFF do not play outside Safari. Every download
-      button gives you Apple's original file, untouched, in its original format. The preview is
-      separately downloadable from a row's detail panel and is labelled as a preview.</p>
-
-    <h3>Download everything</h3>
-    <p><a href="${CFG.releaseBase}all-sounds.zip">The whole collection</a> (355 MB), or by category:</p>
-    <ul class="zip-list">${zips}</ul>
-
-    <h3>The index format</h3>
-    <p>The site reads three static files and calls nothing at runtime.
-      <code>index.core.json</code> carries what search and the list need;
-      <code>index.detail.json</code> carries file paths, sizes and the full release history;
-      <code>peaks.bin</code> is ${data.buckets} bytes of amplitude peaks per sound, in index order.
-      All three are built by <code>tools/make-web.py</code> in the repository.</p>
-
-    <h3>Credits and licence</h3>
-    <p>The tooling and this site are MIT licensed. The audio is not:
-      it is Apple Inc.'s copyrighted work, and nothing here grants a licence to use it.
-      See <a href="${CFG.repoUrl}">the repository</a> for the full notice.</p>`;
-}
-
 /* --- init ------------------------------------------------------------------- */
 
 export function initUI(onChange) {
@@ -460,13 +432,6 @@ export function initUI(onChange) {
     state.dense = ev.target.checked;
     document.body.classList.toggle('dense', state.dense);
     notify(false);
-  });
-
-  $('about-toggle').addEventListener('click', () => {
-    const a = $('about');
-    a.hidden = !a.hidden;
-    $('about-toggle').setAttribute('aria-expanded', String(!a.hidden));
-    if (!a.hidden && !a.dataset.built) { renderAbout(); a.dataset.built = '1'; }
   });
 
   on('core', () => {

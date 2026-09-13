@@ -7,9 +7,20 @@
 <meta name="description" content="Search and download every audio file Apple shipped in iOS, from 2007 to today. Hear it before you download it, and see which releases it was in.">
 <meta name="color-scheme" content="light">
 
-<link rel="preload" href="assets/fonts/public-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="assets/fonts/fragment-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/ibm-plex-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/app.css">
+
+<script>
+/* Stamp the saved theme before first paint, so a dark-mode visitor never gets a
+   frame of paper-white. Kept tiny and inline on purpose. */
+(function () {
+  try {
+    var m = localStorage.getItem('ios-system-sounds:theme');
+    if (m === 'light' || m === 'dark') document.documentElement.setAttribute('data-theme', m);
+  } catch (e) {}
+})();
+</script>
 
 <script>
 /* ---------------------------------------------------------------------------
@@ -43,12 +54,32 @@ window.SOUNDS_CONFIG = {
 
 <header class="header">
   <div class="wrap header-inner">
-    <h1 class="wordmark">iOS System Sounds</h1>
+    <h1 class="wordmark"><button type="button" data-goto="home">iOS System Sounds</button></h1>
+
+    <nav class="nav" aria-label="Sections">
+      <button type="button" data-goto="home">Overview</button>
+      <button type="button" data-goto="sounds">Sounds</button>
+      <button type="button" data-goto="memories">Memories</button>
+      <button type="button" data-goto="contents">Contents</button>
+    </nav>
+
+    <div class="theme-toggle" role="group" aria-label="Colour theme">
+      <button type="button" data-theme-mode="system" title="Follow the system">Auto</button>
+      <button type="button" data-theme-mode="light" title="Always light">Light</button>
+      <button type="button" data-theme-mode="dark" title="Always dark">Dark</button>
+    </div>
+
     <p class="readout mono" id="readout">Loading the index…</p>
   </div>
 </header>
 
 <main class="wrap">
+
+<section id="screen-home" class="screen" hidden></section>
+<section id="screen-contents" class="screen" hidden></section>
+<section id="screen-memories" class="screen" hidden></section>
+
+<div id="screen-sounds" hidden>
 
   <!-- Search ------------------------------------------------------------- -->
   <section class="search-block" aria-label="Search">
@@ -113,7 +144,7 @@ window.SOUNDS_CONFIG = {
     </div>
   </section>
 
-  <div class="pills" id="pills" aria-label="Active filters"></div>
+  <div class="pills" id="pills" role="group" aria-label="Active filters"></div>
 
   <!-- Release comparison --------------------------------------------------- -->
   <section class="diff-bar" id="diff-bar" hidden aria-label="Release comparison">
@@ -152,6 +183,8 @@ window.SOUNDS_CONFIG = {
     <p class="empty" id="empty" hidden></p>
   </section>
 
+  </div><!-- /#screen-sounds -->
+
   <noscript>
     <p class="noscript">This page needs JavaScript to search the collection in the browser.
       Without it you can still download the whole set, or any single category, from the
@@ -164,10 +197,10 @@ window.SOUNDS_CONFIG = {
   <div class="wrap">
     <p class="notice" id="footer-notice"></p>
     <p class="footer-links">
-      <button type="button" class="linkish" id="about-toggle" aria-expanded="false" aria-controls="about">About this collection</button>
+      <button type="button" class="linkish" data-goto="contents">What is in the collection</button>
+      <button type="button" class="linkish" data-goto="memories">Memories stems</button>
       <a id="repo-link" href="https://github.com/rob-paprocki/iOS-System-Sounds">Source on GitHub</a>
     </p>
-    <div class="about" id="about" hidden></div>
   </div>
 </footer>
 
