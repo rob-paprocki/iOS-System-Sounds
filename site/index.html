@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iOS System Sounds — every sound Apple shipped, iOS 1.0 to 26.6</title>
+<meta name="description" content="Search and download every audio file Apple shipped in iOS, from 2007 to today. Hear it before you download it, and see which releases it was in.">
+<meta name="color-scheme" content="light">
+
+<link rel="preload" href="assets/fonts/public-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/fragment-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/app.css">
+
+<script>
+/* ---------------------------------------------------------------------------
+   Deployment configuration.
+
+   Three bases, because the index stores three different kinds of path and they
+   do not all come from the same origin in production. Each base is joined to
+   the stored path verbatim; keep the trailing slash.
+
+     dataBase     + "index.core.json"                   the index, peaks, shelves
+     previewBase  + "audio/Current/UI Sounds/Tink.m4a"  record.preview (AAC)
+     originalBase + "Current/UI Sounds/Tink.caf"        record.file (as Apple shipped it)
+
+   The values below are the LOCAL DEV defaults: serve the repository root over
+   HTTP and open /site/. For production, see site/README.md — the audio moves to
+   an R2 bucket on its own domain and only these lines change.
+--------------------------------------------------------------------------- */
+window.SOUNDS_CONFIG = {
+  dataBase:     '/web/',
+  previewBase:  '/web/',
+  originalBase: '/',
+  releaseBase:  'https://github.com/rob-paprocki/iOS-System-Sounds/releases/download/v2.0.0/',
+  repoUrl:      'https://github.com/rob-paprocki/iOS-System-Sounds',
+  notice:       "These sounds are Apple's copyright, collected here for reference, preservation and research. Downloading one does not give you a licence to use it."
+};
+</script>
+</head>
+<body>
+
+<a class="skip-link" href="#list">Skip to the sound list</a>
+
+<header class="header">
+  <div class="wrap header-inner">
+    <h1 class="wordmark">iOS System Sounds</h1>
+    <p class="readout mono" id="readout">Loading the index…</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- Search ------------------------------------------------------------- -->
+  <section class="search-block" aria-label="Search">
+    <div class="search-field">
+      <label class="vh" for="q">Search sounds by name, filename or category</label>
+      <input id="q" type="search" autocomplete="off" autocorrect="off" spellcheck="false"
+             autofocus enterkeyhint="search" aria-describedby="q-count">
+      <span class="search-count mono" id="q-count"></span>
+    </div>
+    <p class="search-tips-row">
+      <button type="button" class="linkish" id="tips-toggle" aria-expanded="false" aria-controls="tips">Search tips</button>
+      <span class="hint">Press <kbd>/</kbd> to search from anywhere</span>
+    </p>
+    <div class="tips" id="tips" hidden>
+      <p>Type anything: a name (<code>tri-tone</code>), Apple's own filename
+        (<code>sms-received3</code>), or part of a category. These operators also work,
+        and combine with the rest of your query:</p>
+      <ul>
+        <li><code>category:Haptics</code> — only that category tree</li>
+        <li><code>status:removed</code> — only sounds no longer shipping (also <code>status:present</code>)</li>
+        <li><code>format:caf</code> — by the original file's format</li>
+        <li><code>before:iOS7</code> / <code>after:iOS7</code> — by the release a sound first or last appeared in</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Release ruler ------------------------------------------------------ -->
+  <section class="ruler-block" aria-label="Filter by release">
+    <div class="ruler-head">
+      <h2 class="section-label">Releases</h2>
+      <p class="ruler-readout mono" id="ruler-readout"></p>
+      <button type="button" class="linkish" id="ruler-reset" hidden>Reset range</button>
+      <button type="button" class="linkish" id="diff-enter">Compare two releases</button>
+    </div>
+
+    <div class="ruler" id="ruler">
+      <canvas class="ruler-canvas" id="ruler-canvas" aria-hidden="true"></canvas>
+      <div class="ruler-track" id="ruler-track">
+        <div class="ruler-sel" id="ruler-sel"></div>
+        <div class="ruler-handle" id="ruler-from" role="slider" tabindex="0"
+             aria-label="Earliest release" aria-valuemin="0" aria-valuenow="0" aria-valuetext="iOS 1.0"></div>
+        <div class="ruler-handle" id="ruler-to" role="slider" tabindex="0"
+             aria-label="Latest release" aria-valuemin="0" aria-valuenow="0" aria-valuetext="iOS 26.6.1"></div>
+      </div>
+      <p class="ruler-tip mono" id="ruler-tip" hidden></p>
+    </div>
+
+    <div class="ruler-selects" id="ruler-selects">
+      <label>From <select id="from-select"></select></label>
+      <label>To <select id="to-select"></select></label>
+    </div>
+  </section>
+
+  <!-- Facets ------------------------------------------------------------- -->
+  <section class="facets" aria-label="Filter by category and status">
+    <h2 class="vh">Filters</h2>
+    <div class="chips" id="chips" role="group" aria-label="Categories"></div>
+    <div class="status-toggle" role="group" aria-label="Status">
+      <button type="button" data-status="all" aria-pressed="true">All</button>
+      <button type="button" data-status="present" aria-pressed="false">Present</button>
+      <button type="button" data-status="removed" aria-pressed="false">Removed</button>
+    </div>
+  </section>
+
+  <div class="pills" id="pills" aria-label="Active filters"></div>
+
+  <!-- Release comparison --------------------------------------------------- -->
+  <section class="diff-bar" id="diff-bar" hidden aria-label="Release comparison">
+    <p class="diff-summary" id="diff-summary"></p>
+    <p class="diff-legend">
+      <span><b class="mark-add">+</b> added</span>
+      <span><b class="mark-del">−</b> removed</span>
+      <span><b class="mark-rr">±</b> re-recorded</span>
+    </p>
+    <button type="button" class="linkish" id="diff-exit">Leave comparison</button>
+  </section>
+
+  <!-- List --------------------------------------------------------------- -->
+  <section class="list-block" aria-label="Sounds">
+    <div class="list-toolbar">
+      <div class="sorts" id="sort-row" role="group" aria-label="Sort the list">
+        <span class="col col-glyph" aria-hidden="true"></span>
+        <button type="button" class="col col-title"  data-sort="title">Sound</button>
+        <button type="button" class="col col-cat"    data-sort="category">Category</button>
+        <button type="button" class="col col-life"   data-sort="first">Releases</button>
+        <button type="button" class="col col-status" data-sort="status">Status</button>
+        <button type="button" class="col col-dur"    data-sort="duration">Length</button>
+        <button type="button" class="col col-size"   data-sort="bytes">Size</button>
+        <span class="col col-actions" aria-hidden="true"></span>
+      </div>
+      <div class="list-opts">
+        <label class="dense-toggle"><input type="checkbox" id="dense"> Dense rows</label>
+      </div>
+    </div>
+
+    <div class="grid" id="list" role="grid" aria-label="Sounds" aria-rowcount="0">
+      <div class="grid-sizer" id="sizer"></div>
+    </div>
+
+    <div class="shelves" id="shelves" hidden></div>
+    <p class="empty" id="empty" hidden></p>
+  </section>
+
+  <noscript>
+    <p class="noscript">This page needs JavaScript to search the collection in the browser.
+      Without it you can still download the whole set, or any single category, from the
+      <a href="https://github.com/rob-paprocki/iOS-System-Sounds/releases/latest">GitHub release</a>.</p>
+  </noscript>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p class="notice" id="footer-notice"></p>
+    <p class="footer-links">
+      <button type="button" class="linkish" id="about-toggle" aria-expanded="false" aria-controls="about">About this collection</button>
+      <a id="repo-link" href="https://github.com/rob-paprocki/iOS-System-Sounds">Source on GitHub</a>
+    </p>
+    <div class="about" id="about" hidden></div>
+  </div>
+</footer>
+
+<!-- Selection tray ------------------------------------------------------- -->
+<div class="tray" id="tray" hidden role="region" aria-label="Selected sounds">
+  <div class="wrap tray-inner">
+    <p class="tray-count mono" id="tray-count"></p>
+    <p class="notice tray-notice" id="tray-notice"></p>
+    <div class="tray-actions">
+      <button type="button" id="tray-compare">Compare two</button>
+      <button type="button" id="tray-download" class="primary">Download zip</button>
+      <button type="button" id="tray-clear">Clear</button>
+    </div>
+  </div>
+</div>
+
+<p class="vh" id="live" role="status" aria-live="polite"></p>
+
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
