@@ -190,21 +190,33 @@ Decided 2026-09-12. These are constraints on the build, not suggestions.
 **The site source lives in this repository under `site/`.** The audio, the index and the
 generator are all here, so the data contract cannot drift between two repositories.
 
-**The site is served by Cloudflare Pages. The audio is served from a Cloudflare R2 public
-bucket on a custom domain, not from Pages.** Pages caps a free-tier site at 20,000 files and
-25 MiB per file. The current corpus would fit, at roughly 10,730 files and a 13.2 MB largest
-file, but it sits close enough to the ceiling that another few years of iOS releases would
-break it. R2 has no egress charge and no file-count ceiling, so audio scales independently of
-the site.
+**Revised 2026-09-13: the site is a Cloudflare Worker with static assets, and the audio is in
+an R2 bucket the same Worker serves.** The reasoning for keeping audio out of the site host is
+unchanged — Pages caps a free-tier site at 20,000 files and 25 MiB per file, and the corpus is
+already roughly 10,730 files, close enough to that ceiling that a few more years of iOS
+releases would break it. R2 has no egress charge and no file-count ceiling, so audio scales
+independently.
 
-This means `preview` and `file` in the index are paths relative to an audio origin, not to the
-site root. Resolve both against a single configurable base URL. Do not hard-code same-origin
-paths anywhere.
+What changed is the front: a Worker rather than Pages, and the bucket fronted by that Worker
+rather than exposed publicly on its own domain.
 
-**The preview mirror is never committed.** `web/` is gitignored. `tools/make-web.py` builds
-it, and it ships as `iOS-System-Sounds-web-bundle.zip` on the GitHub release, so the site can
-be built without ffmpeg. Cloudflare Pages' build image has no ffmpeg either, so the mirror is
-built in CI or locally and uploaded, never generated at deploy time.
+- **One origin.** `/audio/*` and `/originals/*` are paths on the site, not a second host. No
+  CORS preflight before every play, no separate domain to keep alive, and the Worker answers
+  Range requests properly — Safari will not play an `<audio>` source that cannot serve a range.
+- **The bucket stays private.** Only the Worker reads it.
+- **No build step.** `site/` is uploaded verbatim, so CI only runs `wrangler deploy`.
+
+`preview` and `file` in the index are still resolved against configurable bases, so the audio
+origin can move again without touching the index. Those bases now happen to be same-origin.
+
+**The index is committed, the preview mirror is not.** `site/data/` holds the four small files
+the page fetches at runtime (3.4 MB), so a clean clone can be served and deployed without
+ffmpeg. `web/` stays gitignored.
+
+**The preview mirror is never committed.** `tools/make-web.py` builds it, and it ships as
+`iOS-System-Sounds-web-bundle.zip` on the GitHub release, so the site can be built without
+ffmpeg. It is pushed to R2 with `tools/upload-audio.sh`, never generated at deploy time — the
+Cloudflare build image has no ffmpeg, and with no build step it never needs one.
 
 **Sizes, measured rather than estimated:**
 

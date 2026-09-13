@@ -13,7 +13,15 @@ _store/
 # Build artifacts for the web front end: the AAC preview mirror, the split
 # index, the waveform peaks and the prebuilt archives. All regenerable with
 # tools/make-web.py, and together larger than the originals they describe.
+#
+# The index itself is the exception: site/data/ holds a committed copy of the
+# four small files the page fetches at runtime, so a clean clone can be served
+# and deployed without ffmpeg. Re-sync it with tools/sync-site-data.py.
 web/
+
+# Wrangler's local state: the simulated R2 bucket and KV used by `wrangler dev`.
+.wrangler/
+node_modules/
 
 # Run logs.
 _logs/

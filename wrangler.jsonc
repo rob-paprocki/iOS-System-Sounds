@@ -1,0 +1,30 @@
+{
+  // The site is a Worker with static assets, not a Pages project. `site/` is
+  // uploaded verbatim — there is no build step, so Workers Builds only has to
+  // run `wrangler deploy` and nothing in the build image can break.
+  //
+  // Requests that match a file in `site/` are served straight from the assets
+  // binding and never reach worker/index.js. Everything else falls through to
+  // it, which is how /audio/* and /originals/* reach R2.
+  "name": "ios-system-sounds",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-09-13",
+
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS"
+  },
+
+  // 355 MB of originals and a 191 MB preview mirror, kept out of git.
+  // Create it once with:  npx wrangler r2 bucket create ios-system-sounds-audio
+  "r2_buckets": [
+    {
+      "binding": "AUDIO",
+      "bucket_name": "ios-system-sounds-audio"
+    }
+  ],
+
+  "observability": {
+    "enabled": true
+  }
+}

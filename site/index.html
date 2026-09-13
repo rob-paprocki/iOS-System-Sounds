@@ -24,24 +24,29 @@
 
 <script>
 /* ---------------------------------------------------------------------------
-   Deployment configuration.
+   Paths.
 
-   Three bases, because the index stores three different kinds of path and they
-   do not all come from the same origin in production. Each base is joined to
-   the stored path verbatim; keep the trailing slash.
+   Three bases, because the index stores three different kinds of path. Each is
+   joined to the stored path verbatim; keep the trailing slash.
 
      dataBase     + "index.core.json"                   the index, peaks, shelves
      previewBase  + "audio/Current/UI Sounds/Tink.m4a"  record.preview (AAC)
      originalBase + "Current/UI Sounds/Tink.caf"        record.file (as Apple shipped it)
 
-   The values below are the LOCAL DEV defaults: serve the repository root over
-   HTTP and open /site/. For production, see site/README.md — the audio moves to
-   an R2 bucket on its own domain and only these lines change.
+   These are the same in development and in production, which is the point.
+   `site/` is the document root in both: the index ships as a static asset under
+   /data/, and /audio/ and /originals/ are served by the Worker out of R2 — or,
+   locally, by tools/serve-dev.py out of web/ and the repository trees. Nothing
+   here is rewritten at deploy time because there is no deploy-time step.
+
+   All three are absolute. dataBase in particular must be: the index is fetched
+   inside a Web Worker, where a relative URL resolves against the worker script
+   in /assets/ rather than against the page.
 --------------------------------------------------------------------------- */
 window.SOUNDS_CONFIG = {
-  dataBase:     '/web/',
-  previewBase:  '/web/',
-  originalBase: '/',
+  dataBase:     '/data/',
+  previewBase:  '/',
+  originalBase: '/originals/',
   releaseBase:  'https://github.com/rob-paprocki/iOS-System-Sounds/releases/download/v2.0.0/',
   repoUrl:      'https://github.com/rob-paprocki/iOS-System-Sounds',
   notice:       "These sounds are Apple's copyright, collected here for reference, preservation and research. Downloading one does not give you a licence to use it."

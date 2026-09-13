@@ -41,48 +41,68 @@ directly, two self-hosted open-licence fonts, and three static data files.
 All state is in the query string — the screen, the query, the facets, the
 release range, the open row — so any view is linkable and the back button works.
 
+## How it is hosted
+
+One Cloudflare Worker, on one origin.
+
+* **The page** — `site/` is uploaded verbatim as Workers static assets. A
+  request that matches a file there is served without invoking any code.
+* **The index** — `site/data/` holds the four small files the page fetches
+  (3.4 MB). They are generated, but committed, so a clean clone can be served
+  and deployed with no build step and no ffmpeg.
+* **The audio** — 191 MB of previews and 355 MB of originals live in an R2
+  bucket. Requests that match no asset fall through to `worker/index.js`, which
+  maps `/audio/*` and `/originals/*` onto R2 keys.
+
+Same origin is the point: no CORS preflight before every play, no second domain
+to keep alive, and Range requests answered properly so seeking works — Safari
+will not play an `<audio>` source that cannot serve a range.
+
+There is deliberately **no build step**. Workers Builds only has to run
+`wrangler deploy`, so nothing in the build image can break it.
+
 ## Running it locally
 
-Serve the repository root and open `/site/`. The defaults in `index.html`
-already point at `/web/`, which is where `tools/make-web.py` puts the index and
-the preview mirror.
+    python3 tools/sync-site-data.py   # once, if site/data/ is empty
+    python3 tools/serve-dev.py
+    open http://localhost:8000/
 
-    python3 -m http.server 8000
-    open http://localhost:8000/site/
+`tools/serve-dev.py` routes exactly like the Worker — `site/` is the document
+root, `/audio/*` comes from `web/audio/`, `/originals/*` from the repository
+trees — and serves Range requests. Because the routing matches, `index.html`
+needs no separate development configuration.
 
-If `web/` does not exist yet, build it (needs ffmpeg), or unpack
-`iOS-System-Sounds-web-bundle.zip` from the GitHub release into `web/`:
+To run the real Worker instead, with a simulated R2 bucket:
 
-    python3 tools/make-web.py
+    npx wrangler dev
 
 ## Deploying it
 
-Cloudflare Pages serves the page, an R2 bucket on its own domain serves the
-audio. `tools/make-site.py` stages both and rewrites the paths:
+    npx wrangler r2 bucket create ios-system-sounds-audio   # once
+    ./tools/upload-audio.sh                                 # once, and after any re-ingest
+    npx wrangler deploy
 
-    python3 tools/make-site.py \
-        --preview-base  https://audio.example.com/ \
-        --original-base https://audio.example.com/originals/
+`tools/upload-audio.sh` uses rclone against R2's S3 API. **Do not** use
+`wrangler r2 object put` for the corpus: it percent-encodes the key it parses
+out of `bucket/key`, so `UI Sounds` is stored as `UI%20Sounds` and the Worker —
+which looks up the decoded, literal key — will never find it. Almost every path
+in this collection contains a space.
 
-That writes `_dist/site`, which is what Pages should publish. Upload to R2:
+`site/_headers` still applies; Workers parses it natively. Note that it does
+*not* apply to responses the Worker generates, so the audio path sets its own
+caching headers in `worker/index.js`.
 
-* `web/audio/**` so that `<preview-base>audio/Current/…/Tink.m4a` resolves
-* the `Current/`, `Removed/` and `Spoken Content/` trees so that
-  `<original-base>Current/…/Tink.caf` resolves
+After a corpus rebuild:
 
-`site/_headers` sets the Pages cache policy: the HTML always revalidates, the
-fonts are immutable, the index is good for a day.
-
-To preview the whole thing from one origin, including audio:
-
-    python3 tools/make-site.py --with-audio
-    python3 -m http.server 8000 --directory _dist/site
+    python3 tools/make-web.py         # regenerate web/
+    python3 tools/sync-site-data.py   # copy the index into site/data/
+    ./tools/upload-audio.sh           # push changed audio to R2
+    git add site/data && git commit
 
 ## Configuration
 
-One block at the top of `index.html`, because a static site should not need a
-build to be pointed somewhere else. Three bases, because the index stores three
-different kinds of path and in production they do not share an origin:
+One block at the top of `index.html`. Three bases, because the index stores
+three different kinds of path:
 
 | Key | Joined to | Example stored value |
 |---|---|---|
@@ -91,7 +111,12 @@ different kinds of path and in production they do not share an origin:
 | `originalBase` | `record.file` | `Current/UI Sounds/iPhone/Tink.caf` |
 
 Each is joined verbatim, so keep the trailing slash. Path segments are
-percent-encoded at use; the stored values are not encoded.
+percent-encoded at use; the stored values are not.
+
+All three are **absolute**, and the same in development and production, because
+`site/` is the document root in both. `dataBase` in particular must be absolute:
+the index is fetched inside a Web Worker, where a relative URL would resolve
+against the worker script in `/assets/` rather than against the page.
 
 ## How it is put together
 
@@ -108,6 +133,7 @@ percent-encoded at use; the stored values are not encoded.
 | `assets/ui.js` | Nav, search field, ruler, facets, pills, sorting. |
 | `assets/tray.js` | Selection tray, the client-side zip, the A/B compare. |
 | `assets/zip.js` | A STORE-only ZIP writer, ~120 lines, no dependency. |
+| `../worker/index.js` | Serves `/audio/*` and `/originals/*` out of R2, with Range and conditional requests. Everything else falls through to the assets binding. |
 
 The list keeps about forty rows in the DOM whatever the match count. The
 expanded detail is treated as one extra block of height that rows below are
