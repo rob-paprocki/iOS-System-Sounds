@@ -54,7 +54,12 @@ window.SOUNDS_CONFIG = {
 
 <header class="header">
   <div class="wrap header-inner">
-    <h1 class="wordmark"><button type="button" data-goto="home">iOS System Sounds</button></h1>
+    <h1 class="wordmark">
+      <button type="button" data-goto="home">
+        <span class="wordmark-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span>iOS System Sounds</span>
+      </button>
+    </h1>
 
     <nav class="nav" aria-label="Sections">
       <button type="button" data-goto="home">Overview</button>
@@ -203,6 +208,23 @@ window.SOUNDS_CONFIG = {
     </p>
   </div>
 </footer>
+
+<!-- Transport ------------------------------------------------------------ -->
+<div class="transport" id="transport" hidden role="region" aria-label="Now playing">
+  <div class="wrap transport-inner">
+    <button type="button" class="stop" id="transport-stop" aria-label="Stop playback">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx="1"/></svg>
+    </button>
+    <div class="now">
+      <div class="now-title" id="now-title"></div>
+      <div class="now-meta" id="now-meta"></div>
+    </div>
+    <div class="transport-track" id="transport-track">
+      <div class="transport-fill" id="transport-fill"></div>
+    </div>
+    <span class="transport-time mono" id="transport-time"></span>
+  </div>
+</div>
 
 <!-- Selection tray ------------------------------------------------------- -->
 <div class="tray" id="tray" hidden role="region" aria-label="Selected sounds">

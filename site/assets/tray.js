@@ -15,6 +15,7 @@ import {
 } from './store.js';
 import { makeZip } from './zip.js';
 import { drawWave } from './glyph.js';
+import { syncBottomInset } from './transport.js';
 import * as player from './player.js';
 
 const tray = document.getElementById('tray');
@@ -30,7 +31,7 @@ let busy = false;
 export function syncTray() {
   const n = state.picked.size;
   tray.hidden = n === 0;
-  document.body.style.paddingBottom = n ? '84px' : '';
+  syncBottomInset();                       // the transport docks above this
   if (!n) { closeAB(); return; }
 
   let total = 0;

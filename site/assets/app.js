@@ -16,6 +16,7 @@ import * as tray from './tray.js';
 import * as player from './player.js';
 import * as screens from './screens.js';
 import { initTheme } from './theme.js';
+import { initTransport } from './transport.js';
 
 const worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
 
@@ -430,5 +431,6 @@ on('theme', () => {
 /* --- go ------------------------------------------------------------------------ */
 
 initTheme();
+initTransport();
 ui.initUI(changed);
 tray.initTray();

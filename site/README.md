@@ -4,12 +4,27 @@ Four screens for finding a sound in this collection, hearing it, understanding
 where it came from, and downloading it.
 
 Two documents shaped it. `docs/website-design-notes.md` is the written design
-handoff and still governs the tool screen — its palette, its density, its
-copyright rules. The Claude Design project *Sound preview website design* is the
-later pass, and it settled the things the notes left open or got wrong: a dark
-mode, an overview landing, a Memories stem sequencer, and the typography. Where
-they disagree, the design project wins; where the real data disagrees with
-either, the data wins. Both sets of departures are listed below.
+handoff: it still governs what the tool *does*, its data rules, its density and
+its copyright terms. The Claude Design project *Sound preview website design* is
+the later pass and governs how it *looks* — it settled the overview landing, the
+Memories stem sequencer, the dark mode, and the visual system underneath all of
+it. Where they disagree the design project wins; where the real data disagrees
+with either, the data wins. Both sets of departures are listed below.
+
+The visual system is **Nocturne**, the design system bound to that project.
+Nocturne is dark-native, so the dark theme is its own tokens and the light theme
+is mirrored out of its neutral and accent ramps rather than invented. Its
+signatures, and where they land here:
+
+* rules that fade to transparent at both ends — section rules, table rows, and
+  every row in the list
+* 4 / 8 / 14px radii, never square
+* outline buttons that tint on hover, never filled slabs
+* 11px uppercase kickers with wide tracking, in the accent
+* a blurred translucent header and transport over a gradient ground
+
+The data colours deliberately do not follow the system: green means a sound
+still ships, rust means it has oxidised out, and those hold in both themes.
 
 No build step, no framework, no dependencies. Plain ES modules a browser loads
 directly, two self-hosted open-licence fonts, and three static data files.
@@ -89,6 +104,7 @@ percent-encoded at use; the stored values are not encoded.
 | `assets/glyph.js` | Canvas: waveform glyphs, lifespan bars, ruler, filmstrip. |
 | `assets/theme.js` | System / light / dark, persisted. |
 | `assets/player.js` | The single `<audio>` element, and sequence playback. |
+| `assets/transport.js` | The docked now-playing bar, and the bottom inset it shares with the tray. |
 | `assets/ui.js` | Nav, search field, ruler, facets, pills, sorting. |
 | `assets/tray.js` | Selection tray, the client-side zip, the A/B compare. |
 | `assets/zip.js` | A STORE-only ZIP writer, ~120 lines, no dependency. |
@@ -108,37 +124,41 @@ the root element and caches it; a theme change drops the cache and repaints.
    project made an overview the landing with the tool one click away, and that
    is what is built. The search field is reachable from every screen with `/`.
 2. **There is a dark mode.** §9 defers it. The design project specified a full
-   dark palette and a three-way toggle, so both exist. Light is still the ground
-   state and the roles never swap — green for in service, rust for oxidised out.
-3. **The type is Inter and IBM Plex Mono**, not Public Sans and Fragment Mono.
-   The design project did not adopt the notes' pairing.
-4. **`signal` is `#5D5294`**, a purple, not the notes' blue. Everything else in
-   the palette is the notes' exactly.
-5. **Variant MD5s are not in the row detail.** They exist in `sounds.json` but
+   dark palette and a three-way toggle, so both exist.
+3. **The "records ledger" look is superseded.** §6 asks for ink on paper: zero
+   radius, no shadows, hairlines doing all the structural work. The site is on
+   Nocturne now — rounded, carded, gradient-grounded, with rules that fade at
+   their ends. What survives from §6 is the part that carries meaning: green for
+   a sound still in service, rust for one that has gone, status triple-coded by
+   colour *and* shape *and* label, and a monospace face for data that aligns.
+4. **The type is Inter and IBM Plex Mono**, not Public Sans and Fragment Mono.
+5. **`signal` is a blurple**, `#9184D9` on dark and `#5D5294` on light, not the
+   notes' blue. It is Nocturne's accent and its accent-700 respectively.
+6. **Variant MD5s are not in the row detail.** They exist in `sounds.json` but
    not in the web index, and §7.8 says omit rather than invent.
-6. **The sort controls are a labelled button group, not grid column headers.**
+7. **The sort controls are a labelled button group, not grid column headers.**
    `aria-sort` is only valid on a `columnheader` and axe-core flags it as a
    critical violation on a `button`; the header row also sits outside the grid,
    so claiming it as row 1 would misreport `aria-rowindex`.
 
 **From the Claude Design project:**
 
-7. **Diff, A/B compare and the lifespan bar are built.** Its `github.md` lists
+8. **Diff, A/B compare and the lifespan bar are built.** Its `github.md` lists
    all three as not built this pass. They were already working here, and they
    are the part of the corpus that is actually interesting, so they stayed.
-8. **Data comes from the split index, not live `sounds.json`.** The design
+9. **Data comes from the split index, not live `sounds.json`.** The design
    fetches the 9.6 MB `sounds.json` from jsDelivr and decodes waveforms in the
    browser, which means only the ~2,184 originals a browser can decode play at
    all — its own notes say so. Here, every one of the 5,358 has an AAC preview
    and 5,341 have precomputed peaks.
-9. **Shelves and placeholders use names that resolve.** The design's
+10. **Shelves and placeholders use names that resolve.** The design's
    `SHELF_TITLES` lead with *Tri Tone*, *Tritone* and *Marimba*, and its
    placeholder suggests `tri-tone`. None of those exist in the extracted set:
    Apple's classic text tone ships as `sms-received1.caf`, titled *SMS Received
    1*, and Marimba is absent from an otherwise complete legacy ringtone block
    (Alarm, Ascending, Bark … Xylophone). **Worth chasing in the ingest** — a
    missing Marimba looks like an extraction gap, not an Apple fact.
-10. **The release-change table excludes Spoken Content.** Counted raw it is
+11. **The release-change table excludes Spoken Content.** Counted raw it is
     1,939 Nike+ workout clips arriving in iOS 3 and leaving in iOS 8, and every
     real change to the system sounds vanishes underneath. §7.7 and §10.7 both
     say Spoken Content never drives a default view.
@@ -166,8 +186,13 @@ Checked in a browser against the real 5,358-sound index:
 * the client-side zip, round-tripped through `unzip -t` and Python's `zipfile`:
   CRCs verify and an extracted original is byte-identical to Apple's file
 * theme: light, dark and system, persisted, with the canvases repainting
-* axe-core 4.10: no violations on any of the four screens, including with the
-  row detail, the tray and the A/B panel open
+* the transport: it holds the last sound after playback ends and offers replay,
+  rather than vanishing — most of this corpus is under a second, and a bar that
+  disappeared on `ended` would only ever flicker
+* axe-core 4.10: no violations on any of the four screens, in **both** themes,
+  with the row detail, the tray, the transport and the A/B panel open. The light
+  theme's muted ink is Nocturne's neutral-700 rather than the -600 the dark
+  theme mirrors, because -600 fails contrast at 10–12px on this ground.
 * the layout down to a 500px viewport, with 44px rows and no horizontal scroll
 
 Playback, selection, keyboard navigation and URL round-tripping were exercised
