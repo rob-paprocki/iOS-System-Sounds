@@ -73,13 +73,28 @@ window.SOUNDS_CONFIG = {
       <button type="button" data-goto="contents">Contents</button>
     </nav>
 
-    <div class="theme-toggle" role="group" aria-label="Colour theme">
-      <button type="button" data-theme-mode="system" title="Follow the system">Auto</button>
-      <button type="button" data-theme-mode="light" title="Always light">Light</button>
-      <button type="button" data-theme-mode="dark" title="Always dark">Dark</button>
-    </div>
-
     <p class="readout mono" id="readout">Loading the index…</p>
+
+    <div class="theme-toggle" role="group" aria-label="Colour theme">
+      <button type="button" data-theme-mode="system" title="Follow the system" aria-label="Follow the system theme">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 1.75a6.25 6.25 0 0 0 0 12.5Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <button type="button" data-theme-mode="light" title="Always light" aria-label="Always use the light theme">
+        <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round">
+          <circle cx="8" cy="8" r="3.1"/>
+          <path d="M8 1.1v1.5M8 13.4v1.5M1.1 8h1.5M13.4 8h1.5M3.16 3.16l1.06 1.06M11.78 11.78l1.06 1.06M12.84 3.16l-1.06 1.06M4.22 11.78l-1.06 1.06"/>
+        </svg>
+      </button>
+      <button type="button" data-theme-mode="dark" title="Always dark" aria-label="Always use the dark theme">
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M13.9 8.6A6 6 0 1 1 7.4 2.1 4.7 4.7 0 0 0 13.9 8.6Z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -154,7 +169,10 @@ window.SOUNDS_CONFIG = {
     </div>
   </section>
 
-  <div class="pills" id="pills" role="group" aria-label="Active filters"></div>
+  <div class="list-controls">
+    <div class="pills" id="pills" role="group" aria-label="Active filters"></div>
+    <label class="dense-toggle"><input type="checkbox" id="dense"> Dense rows</label>
+  </div>
 
   <!-- Release comparison --------------------------------------------------- -->
   <section class="diff-bar" id="diff-bar" hidden aria-label="Release comparison">
@@ -169,19 +187,19 @@ window.SOUNDS_CONFIG = {
 
   <!-- List --------------------------------------------------------------- -->
   <section class="list-block" aria-label="Sounds">
+    <!-- The header grid must be exactly as wide as a row, or every label sits
+         off its own column. Nothing else shares this row for that reason. -->
     <div class="list-toolbar">
       <div class="sorts" id="sort-row" role="group" aria-label="Sort the list">
+        <span class="col col-play" aria-hidden="true"></span>
         <span class="col col-glyph" aria-hidden="true"></span>
         <button type="button" class="col col-title"  data-sort="title">Sound</button>
+        <button type="button" class="col col-dur"    data-sort="duration">Length</button>
         <button type="button" class="col col-cat"    data-sort="category">Category</button>
         <button type="button" class="col col-life"   data-sort="first">Releases</button>
         <button type="button" class="col col-status" data-sort="status">Status</button>
-        <button type="button" class="col col-dur"    data-sort="duration">Length</button>
         <button type="button" class="col col-size"   data-sort="bytes">Size</button>
         <span class="col col-actions" aria-hidden="true"></span>
-      </div>
-      <div class="list-opts">
-        <label class="dense-toggle"><input type="checkbox" id="dense"> Dense rows</label>
       </div>
     </div>
 
