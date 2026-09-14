@@ -196,8 +196,10 @@ h1, h2, h3, h4 {
 
 /* A Nocturne signature: freestanding rules fade out at both ends rather than
    stopping dead. Box outlines and in-control separators stay solid. */
+/* The bottom margin matches the space above it, so the rule sits between two
+   blocks rather than stuck to the one below. */
 .hr-fade {
-  height: 1px; border: 0; margin: 0;
+  height: 1px; border: 0; margin: 0 0 52px;
   background: linear-gradient(to right,
     transparent, var(--rule) 48px, var(--rule) calc(100% - 48px), transparent);
 }
@@ -777,12 +779,21 @@ body.has-tray .transport { bottom: var(--tray-h, 56px); }
 }
 .lede p { font-size: 16px; max-width: 56ch; text-wrap: pretty; }
 
+/* Text on the left, the numbers on the right, both sitting on the same
+   baseline. Only the overview's lede splits; the others stay a single column. */
+.lede-split { display: flex; flex-wrap: wrap; gap: 20px 48px; align-items: flex-end; }
+.lede-text { flex: 1 1 440px; min-width: 0; }
+
 /* The four numbers, as one rounded plate divided by its own 1px gaps. */
 .tally {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 1px; margin: 26px 0 0;
   background: var(--rule);
   border: 1px solid var(--rule); border-radius: var(--r-lg); overflow: hidden;
+}
+.lede-split .tally {
+  flex: 1 1 330px; margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .tally div { background: var(--ground); padding: 18px 18px 16px; }
 .tally dt {
@@ -796,8 +807,11 @@ body.has-tray .transport { bottom: var(--tray-h, 56px); }
 }
 .tally div { display: flex; flex-direction: column; }
 
-.cta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; }
-.cta-row .btn + .btn { margin-left: 0; }
+/* Scoped to .screen so it outranks `.screen p`, which would otherwise zero the
+   top margin and sit the buttons flush against the plate above them. */
+.screen .cta-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 0; }
+.screen .cta-row .btn + .btn { margin-left: 0; }
+.screen .notice { margin: 0; }
 
 .steps { margin: 0 0 12px; padding-left: 20px; max-width: 66ch; }
 .steps li { margin: 7px 0; color: color-mix(in srgb, var(--ink) 78%, transparent); }
@@ -890,8 +904,23 @@ body.has-tray .transport { bottom: var(--tray-h, 56px); }
 
 /* --- Static row lists ------------------------------------------------------- */
 
-.rows-static { position: relative; }
+/* Shelves are a curated handful, not the tool: play, waveform, the sound, and
+   a way to take it. Everything the tool puts in columns rides on the row's
+   second line instead, because there are no headers here to give a column
+   meaning — and a full-width grid of short titles leaves a third of the row
+   empty. A narrower measure also stops the shelf reading as a stretched table. */
+.rows-static {
+  position: relative;
+  --cols: 44px var(--glyph-w) minmax(0, 1fr) 74px;
+  max-width: 940px;
+}
 .rows-static .row { position: static; transform: none !important; }
+.rows-static .c-dur,
+.rows-static .c-cat,
+.rows-static .c-life,
+.rows-static .c-status,
+.rows-static .c-size { display: none; }
+.rows-static .sub { font-size: 11.5px; }
 
 /* --- Responsive ------------------------------------------------------------- */
 
@@ -939,6 +968,11 @@ body.has-tray .transport { bottom: var(--tray-h, 56px); }
   .sorts .col { padding: 9px 6px; }
   .list-controls { gap: 10px; flex-wrap: wrap; padding-top: 12px; }
   .theme-toggle button { width: 30px; }
+
+  /* Shelf rows are in normal flow, not the virtualised grid, so they can grow.
+     Better to wrap the meta line than to ellipsis away the category. */
+  .rows-static .row { height: auto; min-height: var(--row-h); padding: 7px 0; }
+  .rows-static .sub { white-space: normal; }
   .lede { padding: 36px 0 8px; }
 
   /* Transport: control and label on one line, the scrub track on its own,

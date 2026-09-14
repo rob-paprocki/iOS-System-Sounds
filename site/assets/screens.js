@@ -64,28 +64,33 @@ export function renderHome(host) {
   const span = `${versionName(0)} to ${versionName(data.versions.length - 1)}`;
 
   host.innerHTML = `
-    <section class="lede">
-      <!-- Kicker and tally labels are uppercased by the design system, so they
-           avoid "iOS" — it would come out as "IOS". -->
-      <p class="kicker">Extracted from Apple IPSW filesystems</p>
-      <h2>Every sound file that ships inside iOS, and every one that used to.</h2>
-      <p>Each release carries a few hundred audio files: the alert you
-        half-remember, the lock click that changed in 2013, a thousand stems for
-        Memories soundtracks nobody hears separately. This is all of them,
-        ${esc(span)}, pulled from the root filesystem of ${data.versions.length}
-        builds and de-duplicated by audio identity, so every entry knows exactly
-        which releases it shipped in.</p>
+    <!-- Text left, the four numbers right, as in the design. A single column
+         would leave half the width of the page empty beside a measure-capped
+         headline. -->
+    <section class="lede lede-split">
+      <div class="lede-text">
+        <!-- Kicker and tally labels are uppercased by the design system, so they
+             avoid "iOS" — it would come out as "IOS". -->
+        <p class="kicker">Extracted from Apple IPSW filesystems</p>
+        <h2>Every sound file that ships inside iOS, and every one that used to.</h2>
+        <p>Each release carries a few hundred audio files: the alert you
+          half-remember, the lock click that changed in 2013, a thousand stems for
+          Memories soundtracks nobody hears separately. This is all of them,
+          ${esc(span)}, pulled from the root filesystem of ${data.versions.length}
+          builds and de-duplicated by audio identity, so every entry knows exactly
+          which releases it shipped in.</p>
+        <p class="cta-row">
+          <button type="button" class="btn primary" data-goto="sounds">Search every sound</button>
+          <button type="button" class="btn" data-goto="memories">Memories stems</button>
+          <button type="button" class="btn" data-goto="contents">What is in the collection</button>
+        </p>
+      </div>
       <dl class="tally">
         <div><dt>Distinct sounds</dt><dd>${fmtInt(c.total)}</dd></div>
         <div><dt>Still shipping</dt><dd>${fmtInt(c.present)}</dd></div>
         <div><dt>Gone</dt><dd>${fmtInt(c.removed)}</dd></div>
         <div><dt>Builds examined</dt><dd>${data.versions.length}</dd></div>
       </dl>
-      <p class="cta-row">
-        <button type="button" class="btn primary" data-goto="sounds">Search every sound</button>
-        <button type="button" class="btn" data-goto="memories">Memories stems</button>
-        <button type="button" class="btn" data-goto="contents">What is in the collection</button>
-      </p>
     </section>
 
     <hr class="hr-fade">
