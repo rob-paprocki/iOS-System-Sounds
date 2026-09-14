@@ -47,6 +47,7 @@ import concurrent.futures
 import datetime as dt
 import hashlib
 import hmac
+import html
 import http.client
 import os
 import sys
@@ -98,8 +99,16 @@ def _signing_key(secret: str, datestamp: str,
     return _sign(k, "aws4_request")
 
 
+def canonical_query(params: dict[str, str]) -> str:
+    """Sorted, fully-encoded query string — SigV4 encodes the separators too."""
+    return "&".join(
+        f"{urllib.parse.quote(k, safe='')}={urllib.parse.quote(v, safe='')}"
+        for k, v in sorted(params.items())
+    )
+
+
 def canonical_request(method: str, uri: str, headers: dict[str, str],
-                      payload_hash: str) -> tuple[str, str]:
+                      payload_hash: str, query: str = "") -> tuple[str, str]:
     """The canonical request and its signed-header list.
 
     Split out from authorize() so it can be checked against AWS's published
@@ -107,7 +116,7 @@ def canonical_request(method: str, uri: str, headers: dict[str, str],
     """
     signed = ";".join(sorted(headers))
     canonical_headers = "".join(f"{k}:{headers[k]}\n" for k in sorted(headers))
-    return "\n".join([method, uri, "", canonical_headers, signed, payload_hash]), signed
+    return "\n".join([method, uri, query, canonical_headers, signed, payload_hash]), signed
 
 
 def string_to_sign(amz_date: str, scope: str, creq: str) -> str:
@@ -127,7 +136,8 @@ def encode_key(key: str) -> str:
 
 
 def authorize(method: str, host: str, canonical_uri: str, payload_hash: str,
-              content_type: str | None, akid: str, secret: str) -> dict[str, str]:
+              content_type: str | None, akid: str, secret: str,
+              query: str = "") -> dict[str, str]:
     now = dt.datetime.now(dt.timezone.utc)
     amz_date = now.strftime("%Y%m%dT%H%M%SZ")
     datestamp = now.strftime("%Y%m%d")
@@ -140,7 +150,7 @@ def authorize(method: str, host: str, canonical_uri: str, payload_hash: str,
     if content_type:
         headers["content-type"] = content_type
 
-    creq, signed = canonical_request(method, canonical_uri, headers, payload_hash)
+    creq, signed = canonical_request(method, canonical_uri, headers, payload_hash, query)
     scope = f"{datestamp}/{REGION}/{SERVICE}/aws4_request"
     signature = hmac.new(
         _signing_key(secret, datestamp),
@@ -168,16 +178,18 @@ def connection(host: str) -> http.client.HTTPSConnection:
 
 
 def request(host: str, method: str, canonical_uri: str, body: bytes | None,
-            payload_hash: str, content_type: str | None, cfg) -> tuple[int, dict, bytes]:
+            payload_hash: str, content_type: str | None, cfg,
+            query: str = "") -> tuple[int, dict, bytes]:
     headers = authorize(method, host, canonical_uri, payload_hash,
-                        content_type, cfg.akid, cfg.secret)
+                        content_type, cfg.akid, cfg.secret, query)
     if body is not None:
         headers["Content-Length"] = str(len(body))
+    path = canonical_uri + (f"?{query}" if query else "")
 
     for attempt in range(3):
         try:
             conn = connection(host)
-            conn.request(method, canonical_uri, body=body, headers=headers)
+            conn.request(method, path, body=body, headers=headers)
             resp = conn.getresponse()
             data = resp.read()
             return resp.status, dict(resp.getheaders()), data
@@ -203,6 +215,54 @@ class Config:
         self.akid = akid
         self.secret = secret
         self.bucket = bucket
+
+
+def list_keys(cfg: Config, prefix: str = "", limit: int = 0) -> tuple[list[str], int]:
+    """Every key under a prefix, as R2 itself reports them.
+
+    This is the check that matters: a LIST returns the key the bucket actually
+    stored, independent of however the client encoded the path on the way in.
+    If a space came back as %20 here, every path with a space in it would be
+    unreachable through the Worker.
+    """
+    empty = hashlib.sha256(b"").hexdigest()
+    uri = "/" + encode_key(cfg.bucket)
+    keys: list[str] = []
+    token = ""
+
+    while True:
+        params = {"list-type": "2", "max-keys": "1000"}
+        if prefix:
+            params["prefix"] = prefix
+        if token:
+            params["continuation-token"] = token
+        status, _, body = request(cfg.host, "GET", uri, None, empty, None, cfg,
+                                  canonical_query(params))
+        if status != 200:
+            raise RuntimeError(f"list failed: {status} {body[:300].decode('utf-8', 'replace')}")
+
+        # Keys come back XML-escaped, not URL-encoded — "&" arrives as "&amp;".
+        text = body.decode("utf-8", "replace")
+        keys += [html.unescape(k) for k in _between(text, "<Key>", "</Key>")]
+        if limit and len(keys) >= limit:
+            return keys[:limit], len(keys)
+        nxt = _between(text, "<NextContinuationToken>", "</NextContinuationToken>")
+        if not nxt:
+            return keys, len(keys)
+        token = nxt[0]
+
+
+def _between(text: str, open_tag: str, close_tag: str) -> list[str]:
+    out, at = [], 0
+    while True:
+        i = text.find(open_tag, at)
+        if i == -1:
+            return out
+        j = text.find(close_tag, i)
+        if j == -1:
+            return out
+        out.append(text[i + len(open_tag):j])
+        at = j
 
 
 def collect() -> list[tuple[Path, str]]:
@@ -260,11 +320,29 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true", help="say what would go, send nothing")
     ap.add_argument("--force", action="store_true", help="re-upload even if it matches")
     ap.add_argument("--verbose", action="store_true")
+    ap.add_argument("--verify", action="store_true",
+                    help="list the bucket and check every expected key is there, "
+                         "stored literally rather than percent-encoded")
+    ap.add_argument("--env-file", help="read R2_* assignments from this file instead "
+                                       "of the environment; keeps the secret out of "
+                                       "argv, shell history and process listings")
     args = ap.parse_args()
 
-    account = os.environ.get("R2_ACCOUNT_ID", "")
-    akid = os.environ.get("R2_ACCESS_KEY_ID", "")
-    secret = os.environ.get("R2_SECRET_ACCESS_KEY", "")
+    env = dict(os.environ)
+    if args.env_file:
+        # Accepts plain KEY=value and `export KEY=value`, ignoring blanks and #.
+        for line in Path(args.env_file).read_text().splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.removeprefix("export ").partition("=")
+            env[key.strip()] = value.strip().strip("'\"")
+
+    account = env.get("R2_ACCOUNT_ID", "")
+    akid = env.get("R2_ACCESS_KEY_ID", "")
+    secret = env.get("R2_SECRET_ACCESS_KEY", "")
+    if args.bucket == "ios-system-sounds-audio" and env.get("R2_BUCKET"):
+        args.bucket = env["R2_BUCKET"]
 
     items = collect()
     if args.limit:
@@ -293,6 +371,24 @@ def main() -> None:
                  + "\nSee the header of this file for how to create the token.")
 
     cfg = Config(account, akid, secret, args.bucket)
+
+    if args.verify:
+        stored, _ = list_keys(cfg)
+        wanted = {k for _, k in items}
+        stored_set = set(stored)
+        spaced = [k for k in stored if " " in k]
+        encoded = [k for k in stored if "%20" in k or "%26" in k]
+        print(f"\nin the bucket : {len(stored):,}")
+        print(f"keys with a literal space : {len(spaced):,}")
+        print(f"keys with %20 or %26      : {len(encoded):,}  <- must be 0")
+        for k in spaced[:3]:
+            print(f"    {k}")
+        missing = sorted(wanted - stored_set)
+        print(f"\nexpected but absent : {len(missing):,}")
+        for k in missing[:10]:
+            print(f"    {k}")
+        sys.exit(1 if (missing or encoded) else 0)
+
     counts = {"upload": 0, "skip": 0, "would-upload": 0}
     failures: list[str] = []
     done = 0

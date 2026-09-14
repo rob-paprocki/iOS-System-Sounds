@@ -10,6 +10,11 @@
   "main": "./worker/index.js",
   "compatibility_date": "2026-09-13",
 
+  // The site lives on its custom domain. Left unset, wrangler turns the
+  // workers.dev URL on by default, which would give an archive of someone
+  // else's copyrighted audio a second public address nobody asked for.
+  "workers_dev": false,
+
   "assets": {
     "directory": "./site",
     "binding": "ASSETS"
