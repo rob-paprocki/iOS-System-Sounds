@@ -79,14 +79,27 @@ To run the real Worker instead, with a simulated R2 bucket:
 ## Deploying it
 
     npx wrangler r2 bucket create ios-system-sounds-audio   # once
-    ./tools/upload-audio.sh                                 # once, and after any re-ingest
     npx wrangler deploy
 
-`tools/upload-audio.sh` uses rclone against R2's S3 API. **Do not** use
-`wrangler r2 object put` for the corpus: it percent-encodes the key it parses
-out of `bucket/key`, so `UI Sounds` is stored as `UI%20Sounds` and the Worker —
-which looks up the decoded, literal key — will never find it. Almost every path
-in this collection contains a space.
+The page works at that point; nothing plays until the audio is in the bucket.
+That needs an R2 API token, which is the one step nobody can do for you —
+Cloudflare dashboard → R2 → API → *Manage API tokens*, with Object Read & Write:
+
+    export R2_ACCOUNT_ID=...
+    export R2_ACCESS_KEY_ID=...
+    export R2_SECRET_ACCESS_KEY=...
+    python3 tools/upload-audio.py --limit 5 --verbose   # smoke test
+    python3 tools/upload-audio.py                       # 10,716 files, 542 MB
+
+`tools/upload-audio.py` speaks S3 with nothing but the standard library, so
+there is no rclone or boto3 to install. Re-runs skip anything whose size and
+MD5 already match, so an interrupted upload just resumes. Its SigV4 signing is
+pinned to AWS's published vectors by `tools/tests/test_sigv4.py`.
+
+**Do not** use `wrangler r2 object put` for the corpus: it percent-encodes the
+key it parses out of `bucket/key`, so `UI Sounds` is stored as `UI%20Sounds`
+and the Worker — which looks up the decoded, literal key — will never find it.
+Almost every path in this collection contains a space.
 
 `site/_headers` still applies; Workers parses it natively. Note that it does
 *not* apply to responses the Worker generates, so the audio path sets its own
@@ -94,9 +107,9 @@ caching headers in `worker/index.js`.
 
 After a corpus rebuild:
 
-    python3 tools/make-web.py         # regenerate web/
-    python3 tools/sync-site-data.py   # copy the index into site/data/
-    ./tools/upload-audio.sh           # push changed audio to R2
+    python3 tools/make-web.py          # regenerate web/
+    python3 tools/sync-site-data.py    # copy the index into site/data/
+    python3 tools/upload-audio.py      # push changed audio to R2
     git add site/data && git commit
 
 ## Configuration
