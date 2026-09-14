@@ -76,7 +76,7 @@ One page. No nav bar, no separate category or version pages. All state lives in 
 - **The release ruler.** A single horizontal strip directly under the search field. 106 tick marks, one per build, spaced by **release order, not calendar date**, so 2007 to 2015 is not crushed against the recent quarterly cadence. Tick height encodes how many sounds are alive at that build. Two drag handles narrow the range. Hovering or focusing a tick shows `iOS 10.0 · 14A403 · iPhone 7`.
 - **Facet row.** Top-level category chips with counts, multi-select. A Present / Removed / All toggle. Spoken Content is a chip like the others but is **excluded by default**, with the chip labelled `+ Spoken Content (1,939)` so the exclusion is visible and one click to undo.
 - **Active filters** render as removable pills above the list whenever any are set.
-- **The list.** Dense rows, 44px default, 32px in the dense toggle. One row per sound, left to right: waveform glyph (fixed 120 × 24px), title with Apple's original filename as a small second line, category tag, lifespan bar, status marker, duration, play button, download button, and a checkbox that appears on hover or focus. The list is a real grid with sortable column headers (title, category, first seen, last seen, duration, size); sorting is a first-class equal way to browse, not a fallback.
+- **The list.** Dense rows, 44px default, 32px in the dense toggle. One row per sound, left to right: play button, waveform glyph (fixed 120 × 24px), title with Apple's original filename as a small second line, duration, category tag, lifespan bar, status marker, size, download button, and a checkbox that appears on hover or focus. (Revised 2026-09-13: play leads the row rather than trailing it — it is the thing people came to press — and duration sits beside the title rather than out among the metadata. Play is still its own labelled control, so the glyph stays a scrub track and never doubles as a button.) The list is a real grid with sortable column headers (title, category, first seen, last seen, duration, size); sorting is a first-class equal way to browse, not a fallback.
 - **The zero state is not empty.** Before any query, the list shows three hand-written shelves, each rendered as ordinary playable rows: **Start somewhere** (Tri-tone, Marimba, Sosumi, the iPhone 4 lock click, the classic text tone, camera shutter), **New in this build**, and **Recently removed**. These are curated by hand from `shelves.json`. They are never generated from category size, which would fill the page with Photos Memories stems.
 
 **The waveform glyph.** Every row is anchored by a real waveform drawn from `peaks.bin`, not an icon. Fixed width regardless of the sound's real duration, because most of the corpus is under half a second and true-to-length would make 90 percent of rows a single hairline. Present sounds are drawn as a solid green fill; removed sounds are drawn as a rust outline with a dashed baseline. The glyph is the scrub track once a sound is playing. It is **not** the play button and it is **not** a hover trigger; play is its own labelled control.
@@ -190,21 +190,33 @@ Decided 2026-09-12. These are constraints on the build, not suggestions.
 **The site source lives in this repository under `site/`.** The audio, the index and the
 generator are all here, so the data contract cannot drift between two repositories.
 
-**The site is served by Cloudflare Pages. The audio is served from a Cloudflare R2 public
-bucket on a custom domain, not from Pages.** Pages caps a free-tier site at 20,000 files and
-25 MiB per file. The current corpus would fit, at roughly 10,730 files and a 13.2 MB largest
-file, but it sits close enough to the ceiling that another few years of iOS releases would
-break it. R2 has no egress charge and no file-count ceiling, so audio scales independently of
-the site.
+**Revised 2026-09-13: the site is a Cloudflare Worker with static assets, and the audio is in
+an R2 bucket the same Worker serves.** The reasoning for keeping audio out of the site host is
+unchanged — Pages caps a free-tier site at 20,000 files and 25 MiB per file, and the corpus is
+already roughly 10,730 files, close enough to that ceiling that a few more years of iOS
+releases would break it. R2 has no egress charge and no file-count ceiling, so audio scales
+independently.
 
-This means `preview` and `file` in the index are paths relative to an audio origin, not to the
-site root. Resolve both against a single configurable base URL. Do not hard-code same-origin
-paths anywhere.
+What changed is the front: a Worker rather than Pages, and the bucket fronted by that Worker
+rather than exposed publicly on its own domain.
 
-**The preview mirror is never committed.** `web/` is gitignored. `tools/make-web.py` builds
-it, and it ships as `iOS-System-Sounds-web-bundle.zip` on the GitHub release, so the site can
-be built without ffmpeg. Cloudflare Pages' build image has no ffmpeg either, so the mirror is
-built in CI or locally and uploaded, never generated at deploy time.
+- **One origin.** `/audio/*` and `/originals/*` are paths on the site, not a second host. No
+  CORS preflight before every play, no separate domain to keep alive, and the Worker answers
+  Range requests properly — Safari will not play an `<audio>` source that cannot serve a range.
+- **The bucket stays private.** Only the Worker reads it.
+- **No build step.** `site/` is uploaded verbatim, so CI only runs `wrangler deploy`.
+
+`preview` and `file` in the index are still resolved against configurable bases, so the audio
+origin can move again without touching the index. Those bases now happen to be same-origin.
+
+**The index is committed, the preview mirror is not.** `site/data/` holds the four small files
+the page fetches at runtime (3.4 MB), so a clean clone can be served and deployed without
+ffmpeg. `web/` stays gitignored.
+
+**The preview mirror is never committed.** `tools/make-web.py` builds it, and it ships as
+`iOS-System-Sounds-web-bundle.zip` on the GitHub release, so the site can be built without
+ffmpeg. It is pushed to R2 with `tools/upload-audio.sh`, never generated at deploy time — the
+Cloudflare build image has no ffmpeg, and with no build step it never needs one.
 
 **Sizes, measured rather than estimated:**
 

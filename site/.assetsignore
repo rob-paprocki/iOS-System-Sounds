@@ -1,0 +1,4 @@
+# Not part of the deployed site. Same format as .gitignore.
+# `_headers` is absent on purpose: Workers parses it and never serves it.
+README.md
+.DS_Store
