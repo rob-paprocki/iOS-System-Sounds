@@ -49,8 +49,8 @@ export function syncTray() {
     const cats = new Set([...state.picked].map(i => topLevel(data.cats[i])));
     const hint = cats.size === 1
       ? ` Download the prebuilt ${[...cats][0]} archive instead.`
-      : ' Narrow the selection, or use the prebuilt category archives in About.';
-    trayCount.textContent = `${fmtInt(n)} selected — too many to zip here (limit ${MAX_CLIENT_ZIP}).${hint}`;
+      : ' Narrow the selection, or take the prebuilt category archives from Contents.';
+    trayCount.textContent = `${fmtInt(n)} selected. That is too many to zip here; the limit is ${MAX_CLIENT_ZIP}.${hint}`;
   }
 }
 
@@ -171,7 +171,7 @@ function openAB() {
       ${[i, j].map((k, n) => `
         <div>
           <p class="ab-meta"><b>${n === 0 ? 'A' : 'B'}</b> · ${esc(data.titles[k])} ·
-             ${esc(data.cats[k])} · ${esc(versionName(data.first[k]))}–${esc(versionName(data.last[k]))} ·
+             ${esc(data.cats[k])} · ${esc(versionName(data.first[k]))} to ${esc(versionName(data.last[k]))} ·
              ${esc(fmtDuration(data.duration[k]) || 'length unknown')}</p>
           <div class="ab-one">
             <canvas data-ab="${k}" height="48" role="img" aria-label="Waveform of ${esc(data.titles[k])}"></canvas>

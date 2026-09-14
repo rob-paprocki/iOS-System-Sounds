@@ -130,11 +130,11 @@ export function renderPills() {
     pillsBox.appendChild(b);
   };
 
-  if (state.q) add(`“${state.q}”`, () => { state.q = ''; qInput.value = ''; });
+  if (state.q) add(`"${state.q}"`, () => { state.q = ''; qInput.value = ''; });
   for (const c of state.cats) add(c, () => { state.cats.delete(c); renderChips(); });
   if (state.status !== 'all') add(state.status === 'present' ? 'Present only' : 'Removed only', () => { state.status = 'all'; syncStatus(); });
   if (rangeActive() && !state.diffMode) {
-    add(`${versionName(state.from)} – ${versionName(state.to)}`, () => {
+    add(`${versionName(state.from)} to ${versionName(state.to)}`, () => {
       state.from = 0; state.to = data.versions.length - 1; syncRuler();
     });
   }
@@ -231,7 +231,7 @@ export function syncRuler(hover = -1) {
 
   rulerReadout.textContent = state.diffMode
     ? `${versionName(state.from)} → ${versionName(state.to)}`
-    : `${versionLabel(state.from)}  —  ${versionLabel(state.to)}`;
+    : `${versionLabel(state.from)}  to  ${versionLabel(state.to)}`;
 
   rulerReset.hidden = !rangeActive();
   if (fromSelect.value !== String(state.from)) fromSelect.value = String(state.from);

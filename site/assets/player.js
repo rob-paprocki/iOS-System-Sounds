@@ -40,7 +40,7 @@ function ensure() {
     const i = current; current = -1;
     emit('play', null);
     emit('playerror', i);
-    announce('That preview could not be played');
+    announce('The browser could not play that preview');
   });
   return el;
 }
