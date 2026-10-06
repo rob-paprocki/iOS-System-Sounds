@@ -150,7 +150,7 @@ export function drawLifespan(canvas, i, cssW = 0, cssH = 0) {
 }
 
 /**
- * The release ruler. 129 ticks spaced by release order, not by date, so that
+ * The release ruler. 130 ticks spaced by release order, not by date, so that
  * 2007–2012 is not crushed against the recent quarterly cadence. Tick height
  * is how many sounds are alive at that build.
  */

@@ -1,10 +1,10 @@
 # iOS System Sounds
 
-Every audio file Apple shipped inside iOS, from the original iPhone in 2007 to iOS 26.6.1,
-pulled out of 129 IPSW filesystems, de-duplicated across all of them, and sorted by function.
+Every audio file Apple shipped inside iOS, from the original iPhone in 2007 to iOS 27.0,
+pulled out of 130 IPSW filesystems, de-duplicated across all of them, and sorted by function.
 
-**5,359 distinct sounds from 129 builds, covering 98 release lines over 19 years.** 1,580 are
-still in iOS today. The other 3,779 are gone.
+**6,002 distinct sounds from 130 builds, covering 99 release lines over 19 years.** 2,171 are
+still in iOS today. The other 3,831 are gone.
 
 Search, play and download them at **[ios-system-sounds.rpaprocki.com](https://ios-system-sounds.rpaprocki.com)**.
 
@@ -16,8 +16,8 @@ one-offs.
 ## Layout
 
 ```
-Current/         1,580 files, still in iOS 26.6.1
-Removed/         1,840 files, shipped once and since dropped
+Current/         2,171 files, still in iOS 27.0
+Removed/         1,892 files, shipped once and since dropped
 Spoken Content/  1,939 files, Nike+ workout narration and similar bulk speech
 sounds.json      every sound: category, format, duration, releases it shipped in
 sounds.csv       the same thing as a spreadsheet
@@ -29,7 +29,7 @@ docs/            release history, collection notes, design notes
 Everything in those three trees is byte for byte what Apple shipped. Nothing is re-encoded at
 any stage.
 
-Formats are mixed because iOS is: 2,179 `.aiff`, 1,918 `.m4a`, 996 `.caf`, 260 `.wav`,
+Formats are mixed because iOS is: 2,181 `.aiff`, 1,919 `.m4a`, 1,630 `.caf`, 266 `.wav`,
 5 `.mp3` and 1 `.flac`. CAF and AIFF will not play in Chrome or Firefox, which is why
 `tools/make-web.py` builds an AAC mirror for the site.
 
@@ -42,9 +42,24 @@ python3 tools/measure.py      # durations and waveform peaks
 python3 tools/build-repo.py   # build the trees and the index
 ```
 
-Roughly 580 GB of downloads and five hours on a fast connection, peaking at about 90 GB of
-disk. You need `ipsw`, `ffmpeg` and `curl`. Releases before iOS 10 have an encrypted root
-filesystem and also need `vfdecrypt` and `dmg2img`.
+Roughly 600 GB of downloads and five hours on a fast connection, peaking at about 90 GB of
+disk. You need `ipsw`, `ffmpeg`, `fpcalc` and `curl`. Releases before iOS 10 have an encrypted
+root filesystem and also need `vfdecrypt` and `dmg2img`. Without `hdiutil` (Windows, Linux)
+the filesystem images are read unmounted, which needs `pip install dissect.apfs`.
+
+### Adding a new release
+
+`corpus.json` and `_store/` are ingest state and are not committed, but a clean clone can
+recover both from the trees and `sounds.json` instead of re-running every release:
+
+```sh
+python3 tools/rebuild-corpus.py   # recover corpus.json and _store/ (a few minutes)
+python3 tools/measure.py
+python3 tools/build-repo.py       # should leave sounds.json unchanged
+python3 tools/plan.py             # delete research/ipswme-iphone.json first to refresh it
+python3 tools/build-all.py        # ingests only the builds that are new
+python3 tools/measure.py && python3 tools/build-repo.py
+```
 
 ## More
 
