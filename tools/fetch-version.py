@@ -15,7 +15,8 @@ Two eras need different handling:
 
     python3 tools/fetch-version.py --device iPhone3,1 --build 8A293 --os "iOS 4.0"
 
-Needs: ipsw, ffmpeg. Legacy versions additionally need vfdecrypt and dmg2img
+Needs: ipsw, ffmpeg. Without hdiutil (Windows, Linux) modern versions are read
+unmounted, which also needs `pip install dissect.apfs`. Legacy versions additionally need vfdecrypt and dmg2img
 (`brew install dmg2img`, which ships both).
 """
 import argparse
@@ -183,10 +184,56 @@ def extract_modern(ipsw, outdir):
     encrypted image it triggers a macOS passphrase dialog that can never be
     satisfied, so the caller must check first.
     """
-    r = run(['ipsw', 'extract', '--files', '--pattern', AUDIO_RE, '--output', outdir, ipsw])
+    if shutil.which('hdiutil'):
+        r = run(['ipsw', 'extract', '--files', '--pattern', AUDIO_RE, '--output', outdir, ipsw])
+        err = r.stderr.strip()[-300:]
+    else:
+        err = extract_unmounted(ipsw, outdir)
     n = sum(1 for p in glob.iglob(os.path.join(outdir, '**', '*'), recursive=True)
             if os.path.isfile(p))
-    return (n > 0), r.stderr.strip()[-300:]
+    return (n > 0 and not err), err
+
+
+def extract_unmounted(ipsw, outdir):
+    """What `ipsw extract --files` does, for hosts that cannot mount APFS.
+
+    ipsw searches the IPSW zip and then the AppOS, SystemOS, filesystem and
+    ExclaveOS images, all into one <build>__<device> folder. Here ipsw only
+    unpacks and decrypts each image, and tools/apfs-extract.py reads it.
+    """
+    dmgdir = outdir + '-dmg'
+    shutil.rmtree(dmgdir, ignore_errors=True)
+    images, folder = [], None
+    try:
+        for kind in ('app', 'sys', 'fs', 'exc'):
+            kdir = os.path.join(dmgdir, kind)
+            run(['ipsw', 'extract', '--dmg', kind, '-o', kdir, ipsw])
+            hits = [p for p in glob.glob(os.path.join(kdir, '*', '*.dmg*'))
+                    if p.endswith(('.dmg', '.dmg.aea'))]
+            if not hits:
+                continue
+            path = hits[0]
+            folder = os.path.basename(os.path.dirname(path))
+            if path.endswith('.aea'):
+                r = run(['ipsw', 'fw', 'aea', '-o', os.path.dirname(path), path])
+                os.remove(path)
+                path = path[:-len('.aea')]
+                if not os.path.exists(path):
+                    return 'could not decrypt %s: %s' % (os.path.basename(path), r.stderr[-300:])
+            images.append(path)
+        if not images:
+            return 'no filesystem images found'
+        dest = os.path.join(outdir, folder)
+        pattern = re.compile(AUDIO_RE)
+        with zipfile.ZipFile(ipsw) as z:
+            for name in z.namelist():
+                if pattern.search(name) and not name.endswith('/'):
+                    z.extract(name, dest)
+        r = subprocess.run([sys.executable, os.path.join(HERE, 'apfs-extract.py'),
+                            '--pattern', AUDIO_RE, '--out', dest] + images)
+        return '' if r.returncode == 0 else 'apfs-extract.py could not read every file'
+    finally:
+        shutil.rmtree(dmgdir, ignore_errors=True)
 
 
 def rootfs_key(device, build, dmg_name):

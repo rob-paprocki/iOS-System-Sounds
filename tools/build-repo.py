@@ -84,7 +84,7 @@ def main():
         counts[root] += 1
 
         index.append({
-            'file': os.path.join(folder, name),
+            'file': os.path.join(folder, name).replace(os.sep, '/'),
             'title': title,
             'category': cat,
             'status': 'present' if present else 'removed',

@@ -36,6 +36,9 @@ import tempfile
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import soundlib as S
+
 BUCKETS = 48
 NOTICE = ("These sounds are Apple's copyright, collected here for reference, "
           "preservation and research. Downloading one does not give you a "
@@ -87,20 +90,24 @@ def encode(job):
     if subprocess.run(base, capture_output=True).returncode == 0 and os.path.exists(dst):
         return ('ok', src)
     # ffmpeg cannot read Apple IMA4 ADPCM in CAF. Core Audio can, so decode
-    # through it to a temporary WAV and encode that instead.
-    if shutil.which('afconvert'):
-        tmp = tempfile.mktemp(suffix='.wav')
-        try:
-            if subprocess.run(['afconvert', '-f', 'WAVE', '-d', 'LEI16', src, tmp],
-                              capture_output=True).returncode == 0:
-                r = subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', tmp, '-map', '0:a:0',
-                                    '-c:a', 'aac', '-b:a', bitrate,
-                                    '-movflags', '+faststart', dst], capture_output=True)
-                if r.returncode == 0 and os.path.exists(dst):
-                    return ('ok-afconvert', src)
-        finally:
-            if os.path.exists(tmp):
-                os.remove(tmp)
+    # through it to a temporary WAV and encode that instead. Without Core Audio,
+    # soundlib's own IMA4 decoder does the same job.
+    tmp = tempfile.mktemp(suffix='.wav')
+    try:
+        if shutil.which('afconvert'):
+            decoded = subprocess.run(['afconvert', '-f', 'WAVE', '-d', 'LEI16', src, tmp],
+                                     capture_output=True).returncode == 0
+        else:
+            decoded = S.ima4_caf_to_wav(src, tmp)
+        if decoded:
+            r = subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', tmp, '-map', '0:a:0',
+                                '-c:a', 'aac', '-b:a', bitrate,
+                                '-movflags', '+faststart', dst], capture_output=True)
+            if r.returncode == 0 and os.path.exists(dst):
+                return ('ok-ima4', src)
+    finally:
+        if os.path.exists(tmp):
+            os.remove(tmp)
     return ('skipped', src)
 
 

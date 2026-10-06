@@ -10,6 +10,7 @@ import math
 import os
 import re
 import subprocess
+import sys
 
 AUDIO_EXT = ('.caf', '.m4a', '.aiff', '.aif', '.wav', '.mp3', '.flac', '.aac',
              '.mp2', '.mp1', '.mpa', '.wave', '.ogg', '.oga', '.m4b', '.m4p',
@@ -159,6 +160,9 @@ def category(ipsw_relpath, filename):
         return 'Find My'
     if base == 'audio' and 'WebCore' in d:
         return 'System Frameworks/Web Core'
+    if 'SiriTTSService.framework/AudioHintFiles/' in d:
+        # One folder per locale. ja-JP was the only one until iOS 27.0.
+        return 'Siri & Voices/Siri Interface'
 
     for suffix, cat in (
             ('UISounds/nano', 'UI Sounds/Watch'),
@@ -171,10 +175,12 @@ def category(ipsw_relpath, filename):
             ('VoiceOverTouch.app/Sounds', 'Accessibility/VoiceOver'),
             ('AlertTones/EncoreInfinitum', 'Ringtones & Alert Tones/Encore Infinitum'),
             ('AlertTones', 'Ringtones & Alert Tones/Alert Tones'),
-            ('Tunings/V54/Haptics', 'Haptics/System'),
             ('Generic/Haptics/AudioResources', 'Haptics/Generic')):
         if d.endswith(suffix):
             return cat
+    # The tuning folder is per device: V54 on iPhone 17 Pro Max, AID8028 on 18 Pro Max
+    if re.search(r'Tunings/[^/]+/Haptics$', d):
+        return 'Haptics/System'
 
     if base == 'MagnifierSupport':
         return 'Accessibility/Magnifier'
@@ -324,10 +330,88 @@ def fp_similarity(a, b):
     return best
 
 
+IMA_STEPS = [
+    7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 19, 21, 23, 25, 28, 31, 34, 37, 41, 45,
+    50, 55, 60, 66, 73, 80, 88, 97, 107, 118, 130, 143, 157, 173, 190, 209, 230,
+    253, 279, 307, 337, 371, 408, 449, 494, 544, 598, 658, 724, 796, 876, 963,
+    1060, 1166, 1282, 1411, 1552, 1707, 1878, 2066, 2272, 2499, 2749, 3024, 3327,
+    3660, 4026, 4428, 4871, 5358, 5894, 6484, 7132, 7845, 8630, 9493, 10442,
+    11487, 12635, 13899, 15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794,
+    32767]
+IMA_INDEX = [-1, -1, -1, -1, 2, 4, 6, 8]
+
+
+def ima4_caf_to_wav(src, dst):
+    """Decode an Apple IMA4 ADPCM CAF to 16-bit WAV. Returns False if it isn't one.
+
+    ffmpeg cannot parse these, and afconvert only exists on macOS. Each packet
+    holds 64 frames: per channel, a 2-byte header (predictor, step index)
+    and 32 bytes of nibbles, low nibble first.
+    """
+    import struct
+    import wave
+    data = open(src, 'rb').read()
+    if data[:4] != b'caff':
+        return False
+    pos, desc, audio = 8, None, None
+    while pos + 12 <= len(data):
+        kind, size = data[pos:pos + 4], struct.unpack('>q', data[pos + 4:pos + 12])[0]
+        body = data[pos + 12:] if size < 0 else data[pos + 12:pos + 12 + size]
+        if kind == b'desc':
+            desc = struct.unpack('>d4sIIIII', body[:32])
+        elif kind == b'data':
+            audio = body[4:]                      # skip the edit count
+        if size < 0:
+            break
+        pos += 12 + size
+    if not desc or desc[1] != b'ima4' or audio is None:
+        return False
+    rate, channels = int(desc[0]), desc[5]
+    per_packet = 34 * channels
+    out = array.array('h')
+    for p in range(0, len(audio) - per_packet + 1, per_packet):
+        chans = []
+        for c in range(channels):
+            block = audio[p + 34 * c:p + 34 * (c + 1)]
+            header = block[0] << 8 | block[1]
+            pred = header & 0xFF80
+            pred = pred - 0x10000 if pred & 0x8000 else pred
+            index = min(header & 0x7F, 88)
+            samples = []
+            for byte in block[2:]:
+                for nib in (byte & 0xF, byte >> 4):
+                    step = IMA_STEPS[index]
+                    diff = step >> 3
+                    if nib & 1:
+                        diff += step >> 2
+                    if nib & 2:
+                        diff += step >> 1
+                    if nib & 4:
+                        diff += step
+                    pred = max(-32768, min(32767, pred - diff if nib & 8 else pred + diff))
+                    index = max(0, min(88, index + IMA_INDEX[nib & 7]))
+                    samples.append(pred)
+            chans.append(samples)
+        for frame in zip(*chans):
+            out.extend(frame)
+    if sys.byteorder == 'big':
+        out.byteswap()
+    with wave.open(dst, 'wb') as w:
+        w.setnchannels(channels)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(out.tobytes())
+    return True
+
+
 def walk_audio(root):
-    """Yield every audio file under root, as paths relative to root."""
+    """Yield every audio file under root, as paths relative to root.
+
+    The relative path always uses '/', whatever the host, because category()
+    parses it and ipsw_dir records it.
+    """
     for dirpath, _, filenames in os.walk(root):
         for name in sorted(filenames):
             if name.lower().endswith(AUDIO_EXT):
                 full = os.path.join(dirpath, name)
-                yield full, os.path.relpath(full, root)
+                yield full, os.path.relpath(full, root).replace(os.sep, '/')
