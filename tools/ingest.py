@@ -82,9 +82,11 @@ def main():
         """Decode an existing entry's stored file, for tier-4 comparison."""
         key = id(entry)
         if key not in pcm_cache:
-            rep = entry['variants'][0]
-            p = store_path(args.store, rep['md5'], rep['ext'])
-            pcm_cache[key] = S.norm_pcm(p) if os.path.exists(p) else None
+            # A corpus recovered by rebuild-corpus.py only has the bytes of
+            # one variant per entry, and not necessarily the first.
+            paths = [store_path(args.store, v['md5'], v['ext']) for v in entry['variants']]
+            p = next((p for p in paths if os.path.exists(p)), None)
+            pcm_cache[key] = S.norm_pcm(p) if p else None
         return pcm_cache[key]
 
     stats = dict(files=0, exact=0, pcm=0, fp=0, corr=0, new=0, undecodable=0)

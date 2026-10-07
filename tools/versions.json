@@ -2,10 +2,10 @@
  "note": "Derived by tools/plan.py from the ipsw.me firmware API. Tier A is one IPSW per iOS major.minor line, tier B is every iPhone launch build, tier C is extra patch releases where audio is known to have changed.",
  "generated_from": "https://api.ipsw.me/v4",
  "totals": {
-  "ipsws": 129,
-  "bytes": 583238888027,
-  "lines": 98,
-  "devices": 61
+  "ipsws": 130,
+  "bytes": 596121660632,
+  "lines": 99,
+  "devices": 64
  },
  "versions": [
   {
@@ -1555,6 +1555,18 @@
    "tier": "A",
    "reason": "already ingested",
    "url": "https://updates.cdn-apple.com/2026SummerFCS/fullrestores/140-75094/69BCC770-5451-4FE7-ADF4-52E2A2AB0EB3/iPhone18,2_26.6.1_23G83_Restore.ipsw"
+  },
+  {
+   "os": "iOS 27.0",
+   "version": "27.0",
+   "build": "24A437",
+   "device": "iPhone19,3",
+   "model": "iPhone 18 Pro Max (US)",
+   "date": "2026-09-14",
+   "bytes": 12882772605,
+   "tier": "A",
+   "reason": "first build of the 27.0 line",
+   "url": "https://updates.cdn-apple.com/2026FallFCS/5e8a15d7-273e-4a74-9d4c-c4737574f722/iPhone19,3_27.0_24A437_Restore.ipsw"
   }
  ]
 }

@@ -9,12 +9,12 @@ The short version is in the [README](../README.md).
 |---|---:|
 | Spoken Content (Nike+ workout narration) | 1,939 |
 | Photos Memories (soundtrack stems) | 1,845 |
-| Siri & Voices (voice previews, voice assets, Siri interface) | 541 |
-| UI Sounds (iPhone, Watch, New, Modern) | 371 |
+| Siri & Voices (voice previews, voice assets, Siri interface) | 1,170 |
+| UI Sounds (iPhone, Watch, New, Modern) | 372 |
 | Accessibility (VoiceOver, Magnifier, Live Speech, Personal Audio) | 230 |
-| System Frameworks (one folder per originating framework) | 186 |
+| System Frameworks (one folder per originating framework) | 198 |
 | Audio & Headphones | 69 |
-| Ringtones & Alert Tones | 47 |
+| Ringtones & Alert Tones | 48 |
 | Telephony & Messaging | 36 |
 | Haptics | 34 |
 | Find My | 21 |
@@ -27,7 +27,7 @@ The trees are mixed format because iOS is:
 
 | `.aiff` | `.m4a` | `.caf` | `.wav` | `.mp3` | `.flac` |
 |---:|---:|---:|---:|---:|---:|
-| 2,179 | 1,918 | 996 | 260 | 5 | 1 |
+| 2,181 | 1,919 | 1,630 | 266 | 5 | 1 |
 
 Extensions come from the container magic rather than from Apple's filename, because a number
 of files shipped mislabelled. Two things to know before building anything on these: CAF and
@@ -39,7 +39,7 @@ ffmpeg cannot parse at all. That is what `tools/make-web.py` is for.
 `tools/versions.json` is the matrix, and it is derived rather than hand-written. Four rules,
 all in `tools/plan.py`:
 
-- One IPSW per iOS major.minor line, 1.0 through 26.6, which comes to 98 of them. The first
+- One IPSW per iOS major.minor line, 1.0 through 27.0, which comes to 99 of them. The first
   build of each line, because that is where a release's new audio first appears, taken from
   the newest hardware generation that received it.
 - Every iPhone launch build, since a launch build is often exclusive to that phone.
@@ -75,12 +75,20 @@ order of magnitude larger and would drown everything else.
 | iOS 17.0 | 35 | 3 | new ringtones, default alert changes to Rebound |
 | iOS 18.0 | 20 | 0 | |
 | iOS 26.0 | 7 | 0 | |
+| iOS 27.0 | 2 | 2 | Photos Sharing Post Tone re-recorded |
 
 Two rows are worth pointing at, because the files and the documentary record arrived at the
 same answer separately. iOS 4.2.1 introduces exactly 17 core sounds, which is the number of
 text tones Apple's press coverage described at the time. iOS 4.3 then adds 10 and drops 10:
 the same tones, re-recorded shorter after complaints, showing up here as ten simultaneous
 replacements.
+
+iOS 27.0 barely touches the core sounds, but it is the largest single release for voices
+since the collection began: 643 sounds appear for the first time, 629 of them Siri. That is
+326 new voice previews (291 of them interactive) and 303 Siri TTS audio hint files in ten
+locales: ja-JP, which until now was the only one, plus zh-CN, yue-CN, zh-HK, zh-TW, ko-KR,
+vi-VN, he-IL, ms-MY and th-TH. That fits the new Siri voice reported for 27.0. 49 older voice
+previews were dropped.
 
 [release-timeline.md](release-timeline.md) has the researched account of all of this, with
 sources, and an explicit list of what the research could not establish.

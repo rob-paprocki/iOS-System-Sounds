@@ -6,7 +6,7 @@ This repository contains two distinct kinds of material, under two distinct term
 
 Everything under `Current/`, `Removed/` and `Spoken Content/`, and the WAV mirror
 distributed via [Releases](../../releases), consists of audio assets extracted from
-129 Apple iOS IPSWs spanning iOS 1.0 (2007) to iOS 26.6.1 (build `23G83`). These
+130 Apple iOS IPSWs spanning iOS 1.0 (2007) to iOS 27.0 (build `24A437`). These
 files are **Apple Inc.'s copyrighted work**. They are
 not covered by the MIT licence in [LICENSE](LICENSE), and no licence to them is
 granted or implied by this repository.
