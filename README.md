@@ -17,11 +17,11 @@ one-offs.
 
 - To listen to or download sounds, use the site above. Its Contents screen links every
   download. In git, browse `Current/`, `Removed/` and `Spoken Content/`, or open `sounds.json`
-  or `sounds.csv` to look a sound up. See Layout below for what each holds.
-- To rebuild the corpus, you need Python 3, `ipsw`, `ffmpeg`, `fpcalc` and `curl`, on macOS,
-  Windows or Linux, and a large amount of disk and bandwidth. To redo everything from nothing,
-  follow [Rebuilding it](#rebuilding-it). To add a newer iOS release to a clone of this repo,
-  go to [Adding a new release](#adding-a-new-release), which recovers the ingest state from the
+  or `sounds.csv` to look a sound up. [Layout](#layout) shows what each holds.
+- To rebuild the corpus from nothing, you need Python 3 on macOS, Windows or Linux, roughly
+  600 GB of downloads, and the tools listed under [Rebuilding it](#rebuilding-it), which also
+  has the commands. To add a newer iOS release to a clone of this repo, go to
+  [Adding a new release](#adding-a-new-release), which recovers the ingest state from the
   committed files first.
 - To run or deploy the site, read [site/README.md](site/README.md). Settings live in three
   places. The config block at the top of `site/index.html` sets where the page finds the index
@@ -48,13 +48,17 @@ docs/            release history, collection notes, design notes
 Everything in those three trees is byte for byte what Apple shipped. Nothing is re-encoded at
 any stage.
 
-The audio and the index files are ordinary git files. The repo does not use Git LFS, and
-`.gitattributes` has no LFS filters, so a normal clone fetches all of them.
+Formats are mixed because iOS is: 2,181 `.aiff`, 1,919 `.m4a`, 1,630 `.caf`, 266 `.wav`,
+5 `.mp3` and 1 `.flac`. CAF and AIFF will not play in Chrome or Firefox, which is why
+`tools/make-web.py` builds an AAC mirror for the site.
+
+The repo does not use Git LFS (`.gitattributes` has no LFS filters), so a normal clone
+fetches the audio and the index files like any other git files.
 
 ## Limits
 
-[docs/collection-notes.md](docs/collection-notes.md) has a Caveats section with the full
-list. In short:
+The Caveats section of [docs/collection-notes.md](docs/collection-notes.md) has the full
+list. The main ones:
 
 - Siri and VoiceOver voices that iOS downloads after setup are not here, only what shipped in
   the IPSW images.
@@ -63,10 +67,6 @@ list. In short:
   recognition data.
 - The site does not have every feature planned for it. The end of `site/README.md` lists what
   is not built.
-
-Formats are mixed because iOS is: 2,181 `.aiff`, 1,919 `.m4a`, 1,630 `.caf`, 266 `.wav`,
-5 `.mp3` and 1 `.flac`. CAF and AIFF will not play in Chrome or Firefox, which is why
-`tools/make-web.py` builds an AAC mirror for the site.
 
 ## Rebuilding it
 
