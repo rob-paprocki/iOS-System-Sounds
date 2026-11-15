@@ -1,0 +1,58 @@
+# The converted WAV mirror is 1.6 GB -- distributed via Releases, not git.
+# Rebuild it locally with: python3 tools/make-wav.py
+WAV/
+
+# Ingest scratch: downloaded IPSWs, mounted images, per-version extractions.
+# Everything here is reproducible from tools/fetch-version.py.
+_work/
+
+# Content-addressed store of every unique audio file across all versions.
+# Large, and the Current/ + Removed/ trees are built from it.
+_store/
+
+# Build artifacts for the web front end: the AAC preview mirror, the split
+# index, the waveform peaks and the prebuilt archives. All regenerable with
+# tools/make-web.py, and together larger than the originals they describe.
+#
+# The index itself is the exception: site/data/ holds a committed copy of the
+# four small files the page fetches at runtime, so a clean clone can be served
+# and deployed without ffmpeg. Re-sync it with tools/sync-site-data.py.
+web/
+
+# Wrangler's local state: the simulated R2 bucket and KV used by `wrangler dev`.
+.wrangler/
+node_modules/
+
+# Run logs.
+_logs/
+
+# Staging directory for release assets, built by tools/make-web.py and
+# uploaded with gh release upload. Nothing here belongs in git.
+_dist/
+
+# Release archives
+*.zip
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Ingest working state; the public index is sounds.json, rebuilt by tools/build-repo.py
+corpus.json
+
+# ipsw writes this next to downloads
+checksums.txt.sha1
+
+# Local-only files, never committed.
+wordlist.local
+*.local
+
+# Claude Code per-machine settings and session state
+.claude/

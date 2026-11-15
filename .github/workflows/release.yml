@@ -1,0 +1,75 @@
+name: Release
+
+# Runs in the PUBLIC repository when a version tag arrives (or by hand for a
+# tag): runs the tests and creates the GitHub release from the CHANGELOG notes.
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build the release for, e.g. v0.1.0"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  which:
+    # A push to main releases only when that commit carries a vX.Y.Z tag (cut-release pushes
+    # the commit and its tag together, and the tag push alone doesn't always start a run).
+    if: github.repository == 'rob-paprocki/iOS-System-Sounds'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.find.outputs.tag }}
+    steps:
+      - id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            tag="$INPUT_TAG"
+          elif [ "$GITHUB_REF_TYPE" = tag ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag=$(gh api "repos/$GITHUB_REPOSITORY/tags" --paginate \
+                    --jq ".[] | select(.commit.sha == \"$GITHUB_SHA\") | .name" \
+                  | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)
+          fi
+          [ -n "$tag" ] || echo "No version tag on $GITHUB_SHA; nothing to release."
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: which
+    if: needs.which.outputs.tag != ''
+    concurrency: release-${{ needs.which.outputs.tag }}
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ needs.which.outputs.tag }}
+    steps:
+      - name: Tag must be exactly vX.Y.Z
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "bad tag name"; exit 1; }
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/tags/${{ env.TAG }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests
+        run: python3 -m unittest discover -s tests
+      - name: Release notes from the changelog
+        run: python3 scripts/release/changelog.py notes "${TAG#v}" > notes.md
+      - name: Create GitHub release (skip if it already exists)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "release $TAG already exists; nothing to do"; exit 0
+          fi
+          gh release create "$TAG" --title "iOS-System-Sounds ${TAG#v}" --notes-file notes.md --verify-tag
